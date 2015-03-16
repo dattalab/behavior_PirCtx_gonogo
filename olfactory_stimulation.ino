@@ -53,17 +53,6 @@ client.println(mfc3);
 //client.println(mfc4);
 Serial.print("write BankFlow3_Actuator ");
 Serial.println(mfc3);
-//Serial.print("write BankFlow4_Actuator ");
-//Serial.println(mfc4);
-//   
-//   client.print("write Carrier7_Actuator ");
-//   client.println(mfc7);
-//   client.print("write Carrier8_Actuator ");
-//   client.println(mfc8);
-//   Serial.print("write Carrier7_Actuator ");
-//   Serial.println(mfc7);
-//   Serial.print("write Carrier8_Actuator ");
-//   Serial.println(mfc8);
    
    //client.print("write BankFlow1_Actuator ");
    //client.println(mfc1);

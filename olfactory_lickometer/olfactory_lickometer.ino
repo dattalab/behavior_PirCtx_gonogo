@@ -22,7 +22,7 @@ EthernetClient client;
 
 // wiring info
 const byte buttonInPin = 2;
-const byte triggerOutPin = 13;
+const byte triggerOutPin = 7;
 const byte lickInPin = 3;
 const byte solenoidOutPin = 5;
 const byte punishmentOutPin = 6;
@@ -47,17 +47,22 @@ elapsedMillis timer;
 
 void setup() { 
   Serial.begin(9600);
+  
   Ethernet.begin(mac,ip); // Ethernet client initialization
+
   delay(1000);
+  
   Serial.println("// connecting...");
-  int connexion = 0;
-  while(connexion == 0){
+  int connexion = -1;
+  while(connexion != 1){
     connexion=client.connect(server, port);
-    Serial.println("// Connexion failed!");
-    delay(500);
+    if(connexion < 0){
+      Serial.println("// Connexion failed!");
+      delay(500);
+    }
   }
   if (connexion == 1) { // Ethernet connexion to the olfactometer
-     Serial.println("// connected!");
+     Serial.println("C,1");
      // set MFC and Valve Flow Rates
      client.print("write BankFlow1_Actuator ");
      client.println(mfc1);

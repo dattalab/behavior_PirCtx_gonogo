@@ -15,18 +15,17 @@ int pulse_length = 100;
 String carrierRate = "1000";
 String odorRate = "1000";
 String mfc3 = odorRate;
-//String mfc4 = odorRate;
+
 String mfc1 = odorRate;
 String mfc2 = odorRate;
-//String mfc7 = carrierRate;
-//String mfc8 = carrierRate;
+
 String mfc5 = carrierRate;
 String mfc6 = carrierRate;
 
 int number_of_trials = 1;
 int stimulus_duration = 10000;
 int inter_stimulus_interval = 1000; 
-//int valve[] = {16,17,18,19,20,21,22,23}; // valve 9 is reserved for the blank 
+ 
 int active_valves = 22;
 
 

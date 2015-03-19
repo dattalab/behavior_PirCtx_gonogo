@@ -240,8 +240,8 @@ while(go == 1)
                 us_time_raw=str2num(split_last_line{1});
                 us_time=us_time_raw-trial_info.start_time(us_trial,current_block_id);
                 if(us_status == 1)
-                    us_events_raw{us_trial,current_block_id}(1,1:2)=[lick_time_raw us_outcome];
-                    us_events{us_trial,current_block_id}(1,1:2)=[lick_time us_outcome];
+                    us_events_raw{us_trial,current_block_id}(1,1:2)=[lick_time_raw us_outcome_code];
+                    us_events{us_trial,current_block_id}(1,1:2)=[lick_time us_outcome_code];
                 end
             else
                 dualfprintf(treatlogfile,'>> Unexpected syntax: %s\n',last_line);

@@ -8,6 +8,8 @@ int duration_odor_sampling = 1000;
 int duration_wait = 1000;
 int duration_outcome = 1000;
 int duration_interstimulus_interval = 1000;
+int start_assessment_window=1500;
+int duration_assessment_window=1000;
 int odors[]={1,2}; // odor valves (9 is reserved for blank)
 int odor_valence[]={1,0};
 String odor_name[]={"HEX","HEPT"};
@@ -22,10 +24,11 @@ EthernetClient client;
 
 // wiring info
 const byte buttonInPin = 2;
-const byte triggerOutPin = 7;
+const byte triggerOutPin = 6;
+const byte TTLOutPin = 7;
 const byte lickInPin = 3;
-const byte solenoidOutPin = 5;
-const byte punishmentOutPin = 6;
+const byte solenoidOutPin = 4;
+const byte punishmentOutPin = 5;
 
 // parameters of TTL & flow
 const int pulse_length = 100;
@@ -47,22 +50,18 @@ elapsedMillis timer;
 
 void setup() { 
   Serial.begin(9600);
-  
   Ethernet.begin(mac,ip); // Ethernet client initialization
-
-  delay(1000);
-  
+  delay(2000);
   Serial.println("// connecting...");
   int connexion = -1;
-  while(connexion != 1){
-    connexion=client.connect(server, port);
-    if(connexion < 0){
-      Serial.println("// Connexion failed!");
-      delay(500);
-    }
-  }
-  if (connexion == 1) { // Ethernet connexion to the olfactometer
-     Serial.println("C,1");
+  //while(connexion != 1){
+    //connexion=client.connect(server, port);
+    //Serial.println("// Connexion failed!");
+    //delay(500);
+ // }
+     Serial.println("// connected!");
+     Serial.print(millis());
+     Serial.println(",CONOK,1");
      // set MFC and Valve Flow Rates
      client.print("write BankFlow1_Actuator ");
      client.println(mfc1);
@@ -81,11 +80,7 @@ void setup() {
      Serial.println(mfc5);
      Serial.print("// write Carrier6_Actuator ");
      Serial.println(mfc6);
-   } 
-   else {
-    Serial.println("// Connection failed!");
-  }
-  
+ 
   pinMode(buttonInPin, INPUT); 
   pinMode(triggerOutPin, OUTPUT);
   pinMode(lickInPin, INPUT);
@@ -141,6 +136,14 @@ void olfStim() {
     Serial.print(String(duration_outcome));
     Serial.print(",");
     Serial.println(String(duration_interstimulus_interval));
+    
+    Serial.print(String(millis()));
+    Serial.print(",BIW,");
+    Serial.print(String(current_block));
+    Serial.print(",");
+    Serial.print(String(start_assessment_window));
+    Serial.print(",");
+    Serial.println(String(duration_assessment_window));
     
     for(int i=0; i<nb_odors; i++){
       Serial.print(String(millis()));
@@ -234,6 +237,14 @@ void olfStim() {
             if(outcome_on == 0){
               digitalWrite(outcome_pin,HIGH);
               outcome_on=1;
+              Serial.print(String(millis()));
+              Serial.print(",US,");
+              Serial.print(String(current_block));
+              Serial.print(",");
+              Serial.print(String(current_odor+1));
+              Serial.print(",");
+              Serial.print(String(outcome_code));
+              Serial.println(",1");
             }
             else if(millis() > (start_count_time + duration_odor_sampling + duration_wait + duration_outcome)){
               state=3;
@@ -257,4 +268,3 @@ void olfStim() {
 }
 Serial.println("KILL");
 }
-

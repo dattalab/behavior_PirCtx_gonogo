@@ -2,17 +2,17 @@
 #include <Ethernet.h>
 #include <elapsedMillis.h>
 
-int nb_blocks = 2;
-int nb_trials_per_block=3;
+int nb_blocks = 3;
+int nb_trials_per_block=100;
 int duration_odor_sampling = 1000;
 int duration_wait = 1000;
 int duration_outcome = 1000;
 int duration_interstimulus_interval = 1000;
-int start_assessment_window=1500;
+int start_assessment_window=1000;
 int duration_assessment_window=1000;
-int odors[]={1,2}; // odor valves (9 is reserved for blank)
+int odors[]={1,2,3}; // odor valves (9 is reserved for blank)
 int odor_valence[]={1,0};
-String odor_name[]={"HEX","HEPT"};
+String odor_name[]={"EUG","ETHYLACET"};
 int nb_odors=2;
 
 // Ethernet connexion to olfactometer
@@ -32,7 +32,7 @@ const byte punishmentOutPin = 5;
 
 // parameters of TTL & flow
 const int pulse_length = 100;
-const int solenoid_length = 25;
+const int solenoid_length = 5;
 const int reward_solenoid_length=25;
 const int punishment_airpuff_duration=500;
 String carrierRate = "1000";
@@ -54,11 +54,11 @@ void setup() {
   delay(2000);
   Serial.println("// connecting...");
   int connexion = -1;
-  //while(connexion != 1){
-    //connexion=client.connect(server, port);
-    //Serial.println("// Connexion failed!");
-    //delay(500);
- // }
+  while(connexion != 1){
+    connexion=client.connect(server, port);
+    Serial.println("// Connexion failed!");
+    delay(500);
+ }
      Serial.println("// connected!");
      Serial.print(millis());
      Serial.println(",CONOK,1");
@@ -80,16 +80,6 @@ void setup() {
      Serial.println(mfc5);
      Serial.print("// write Carrier6_Actuator ");
      Serial.println(mfc6);
- 
-  pinMode(buttonInPin, INPUT); 
-  pinMode(triggerOutPin, OUTPUT);
-  pinMode(lickInPin, INPUT);
-  pinMode(solenoidOutPin,OUTPUT);
-  pinMode(punishmentOutPin,OUTPUT);
-  
-  digitalWrite(triggerOutPin, LOW);
-  digitalWrite(solenoidOutPin, LOW);
-  digitalWrite(punishmentOutPin, LOW);
 
 }
 

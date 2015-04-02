@@ -1,5 +1,3 @@
-#include <SPI.h>
-#include <Ethernet.h>
 #include <elapsedMillis.h>
 
 int nb_blocks = 3;
@@ -15,13 +13,6 @@ int odor_valence[]={1,0};
 String odor_name[]={"EUG","ETHYLACET"};
 int nb_odors=2;
 
-// Ethernet connexion to olfactometer
-byte mac[] = {0x90, 0xA2, 0xDA, 0x0F, 0x97, 0xE2};
-byte ip[] = {192,168,20,16};
-byte server[] = {192,168,20,85};
-int port = 3336;
-EthernetClient client;
-
 // wiring info
 const byte buttonInPin = 2;
 const byte triggerOutPin = 6;
@@ -34,16 +25,6 @@ const byte punishmentOutPin = 5;
 const int pulse_length = 100;
 const int reward_solenoid_length=15;
 const int punishment_airpuff_duration=500;
-String carrierRate = "1000";
-String odorRate = "100";
-//String mfc3 = odorRate;
-//String mfc4 = odorRate;
-String mfc1 = odorRate;
-String mfc2 = odorRate;
-//String mfc7 = carrierRate;
-//String mfc8 = carrierRate;
-String mfc5 = carrierRate;
-String mfc6 = carrierRate;
 
 elapsedMillis timer;
 
@@ -61,36 +42,8 @@ void setup() {
   digitalWrite(punishmentOutPin,LOW);
   
   Serial.begin(9600);
-  Ethernet.begin(mac,ip); // Ethernet client initialization
-  delay(2000);
-  Serial.println("// connecting...");
-  int connexion = 1;
-  while(connexion != 1){
-    connexion=client.connect(server, port);
-    Serial.println("// Connexion failed!");
-    delay(500);
- }
-     Serial.println("// connected!");
      Serial.print(millis());
      Serial.println(",CONOK,1");
-     // set MFC and Valve Flow Rates
-     client.print("write BankFlow1_Actuator ");
-     client.println(mfc1);
-     client.print("write BankFlow2_Actuator ");
-     client.println(mfc2);
-     Serial.print("// write BankFlow1_Actuator ");
-     Serial.println(mfc1);
-     Serial.print("// write BankFlow2_Actuator ");
-     Serial.println(mfc2);
-     
-     client.print("// write Carrier5_Actuator ");
-     client.println(mfc5);
-     client.print("// write Carrier6_Actuator ");
-     client.println(mfc6);
-     Serial.print("// write Carrier5_Actuator ");
-     Serial.println(mfc5);
-     Serial.print("// write Carrier6_Actuator ");
-     Serial.println(mfc6);
 
 }
 
@@ -113,10 +66,9 @@ void sendTrigger() {
 void olfStim() {
     
   for (int current_block = 1; current_block < (nb_blocks + 1); current_block++) {
-    randomSeed(micros());
     int order[nb_trials_per_block];
     for(int i = 0; i < nb_trials_per_block; i++){
-      order[i]=random(1,nb_odors+1);
+      order[i]=i%2+1; 
     }
     Serial.print(String(millis()));
     Serial.print(",BIP,");
@@ -188,8 +140,7 @@ void olfStim() {
       int countLicks=0;
       int state=0;
       
-      client.print("write Bank2_Valves ");
-      client.println(String(odors[order[current_odor] - 1]));
+      sendTrigger();
       
       while(state < 4){
         lickState=digitalRead(lickInPin);
@@ -227,18 +178,17 @@ void olfStim() {
           case 1:
             if(odor_on == 1){
                 //present blank between odorants
-               client.println("write Bank2_Valves 0");
-               odor_on=0;
+                odor_on=0;
             }
             else if(millis() > (start_count_time + duration_odor_sampling + duration_wait)){
               state=2;
             }
             break;
           case 2:
-            if(outcome_on == 0){
+            if((outcome_on == 0) && (outcome_code != 0)){
               digitalWrite(outcome_pin,HIGH);
               outcome_on=1;
-                            if(outcome_code == 1){
+              if(outcome_code == 1){
                 delay(reward_solenoid_length);
                 digitalWrite(solenoidOutPin,LOW);
                 outcome_on=2;

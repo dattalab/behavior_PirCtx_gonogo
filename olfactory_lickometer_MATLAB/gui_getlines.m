@@ -15,7 +15,7 @@ function varargout = gui_getlines(varargin)
 %      unrecognized property name or invalid value makes property application
 %      stop.  All inputs are passed to gui_getlines_OpeningFcn via varargin.
 %
-%      *See GUI Opticons on GUIDE's Tools menu.  Choose "GUI allows only one
+%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES

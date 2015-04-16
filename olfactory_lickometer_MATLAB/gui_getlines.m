@@ -15,7 +15,7 @@ function varargout = gui_getlines(varargin)
 %      unrecognized property name or invalid value makes property application
 %      stop.  All inputs are passed to gui_getlines_OpeningFcn via varargin.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%      *See GUI Opticons on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
@@ -102,7 +102,7 @@ logfile=fopen(savefile_log,'w');
 treatlogfile=fopen(savefile_treatlog,'w');
 
 % Initialize communication with Arduino
-s=serial('/dev/cu.usbmodem1411');
+s=serial('COM3');
 fopen(s);
 %s.BytesAvailable=1;
 
@@ -240,8 +240,8 @@ while(go == 1)
                 us_time_raw=str2num(split_last_line{1});
                 us_time=us_time_raw-trial_info.start_time(us_trial,current_block_id);
                 if(us_status == 1)
-                    us_events_raw{us_trial,current_block_id}(1,1:2)=[lick_time_raw us_outcome_code];
-                    us_events{us_trial,current_block_id}(1,1:2)=[lick_time us_outcome_code];
+                    us_events_raw{us_trial,current_block_id}(1,1:2)=[us_time_raw us_outcome_code];
+                    us_events{us_trial,current_block_id}(1,1:2)=[us_time us_outcome_code];
                 end
             else
                 dualfprintf(treatlogfile,'>> Unexpected syntax: %s\n',last_line);
@@ -249,7 +249,7 @@ while(go == 1)
         else
             disp(last_line);
         end
-        drawnow update
+        drawnow
     end
 end
 

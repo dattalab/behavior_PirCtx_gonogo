@@ -1,3 +1,9 @@
+typedef struct commandStruct
+{
+  char cmd;
+  int param;
+};
+
 void sendCommandToOlfacto(struct commandStruct myCmd){
   digitalWrite(icspOutPin,HIGH);
   SPI_writeAnything(myCmd);

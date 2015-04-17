@@ -1,12 +1,12 @@
 void p1_tube_training(){
   
-// -- Lickport learning parameters
-int lickportphase_successful_required=21; // nb of successful trials required
-int lickportphase_consecutive_hits=3;
-int lickportphase_delay=10000;
-unsigned int lickportphase_timeout=60000;
-unsigned int lickportphase_minimum_reward_interval=1000;
-// -- End of parameters
+  // -- Lickport learning parameters
+  int lickportphase_successful_required=21; // nb of successful trials required
+  int lickportphase_consecutive_hits=3;
+  int lickportphase_delay=10000;
+  unsigned int lickportphase_timeout=60000;
+  unsigned int lickportphase_minimum_reward_interval=1000;
+  // -- End of parameters
 
 
   int nb_successful_trials=0;
@@ -23,16 +23,16 @@ unsigned int lickportphase_minimum_reward_interval=1000;
   Serial.print("// ");
   Serial.print(String(millis()));
   Serial.println(",PHASE,1");
-      Serial.print(String(millis()));
-    Serial.print(",TLIP,");
-    Serial.print(String(lickportphase_successful_required));
-    Serial.print(",");
-    Serial.println(String(lickportphase_consecutive_hits));
-    Serial.print(String(millis()));
-    Serial.print(",TLID,");
-    Serial.print(String(lickportphase_delay));
-    Serial.print(",");
-    Serial.println(String(lickportphase_timeout));
+  Serial.print(String(millis()));
+  Serial.print(",TLIP,");
+  Serial.print(String(lickportphase_successful_required));
+  Serial.print(",");
+  Serial.println(String(lickportphase_consecutive_hits));
+  Serial.print(String(millis()));
+  Serial.print(",TLID,");
+  Serial.print(String(lickportphase_delay));
+  Serial.print(",");
+  Serial.println(String(lickportphase_timeout));
     
   while(nb_successful_trials < lickportphase_successful_required){
     digitalWrite(LED1OutPin,HIGH);
@@ -95,12 +95,12 @@ unsigned int lickportphase_minimum_reward_interval=1000;
         while(digitalRead(buttonInPin) != HIGH){};
         digitalWrite(LED2OutPin,LOW);
         start_count_time=millis();
-                    time_last_reward=millis();
-            digitalWrite(solenoidOutPin,HIGH);
-            delay(reward_solenoid_length);
-            digitalWrite(solenoidOutPin,LOW);
-            Serial.print(String(millis()));
-            Serial.println(",US,0,0,1,1");
+        time_last_reward=millis();
+        digitalWrite(solenoidOutPin,HIGH);
+        delay(reward_solenoid_length);
+        digitalWrite(solenoidOutPin,LOW);
+        Serial.print(String(millis()));
+        Serial.println(",US,0,0,1,1");
       }
     }
     Serial.print(millis());

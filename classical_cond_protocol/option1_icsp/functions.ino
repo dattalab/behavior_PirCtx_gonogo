@@ -4,12 +4,11 @@ void deliverWaterReward(int duration_water_reward){
   digitalWrite(solenoidOutPin,LOW);
 }
 
-int lengthArrayByte(byte array[]){
-  return (sizeof(array)/sizeof(int));
-}
-
-int lengthArrayInt(const int* array, size_t size){
-  int mySize;
-  mySize=sizeof(array)/sizeof(int);
-  return mySize;
+void randomizeArray(int *parray, int nb_elements){
+  for (int i= 0; i< nb_elements; i++) {
+    int pos = random(nb_elements-1); 
+    int temp = parray[i];  
+    parray[i] = parray[pos];
+    parray[pos] = temp;
+  }
 }

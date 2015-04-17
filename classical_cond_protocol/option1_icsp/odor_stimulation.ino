@@ -3,7 +3,9 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
     setDurationOlfacto(duration_odor_sampling); // send duration to olfactometer
     idleOlfacto(); // put the olfacto in iddle mode
     
-    // Send parameters
+    // ### Send parameters ###
+    // # Block initiation parameters
+    // time,BIP,block_ID,nb_trials,nb_odors
     Serial.print(String(millis()));
     Serial.print(",BIP,");
     Serial.print(String(current_block));
@@ -12,6 +14,8 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
     Serial.print(",");
     Serial.println(String(nb_odors));
     
+    // # Block initiation duration
+    // time,BID,block_id,odor_sampling,wait_time,outcome,ISI
     Serial.print(String(millis()));
     Serial.print(",BID,");
     Serial.print(String(current_block));
@@ -24,6 +28,8 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
     Serial.print(",");
     Serial.println(String(duration_interstimulus_interval));
     
+    // # Block initiation assessment window
+    // time,BIW,start_time,duration
     Serial.print(String(millis()));
     Serial.print(",BIW,");
     Serial.print(String(current_block));
@@ -32,6 +38,9 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
     Serial.print(",");
     Serial.println(String(duration_assessment_window));
     
+    // # Block initiation odor list
+    // For each odor:
+    // time,BIO,block_id,odor_id,odor_name,odor_valence,valve
     for(int i=0; i<nb_odors; i++){
       Serial.print(String(millis()));
       Serial.print(",BIO,");
@@ -46,7 +55,10 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
       Serial.println(String(odors[i]));
     }
     
+    // ### Trial initiation ###
     for (int trial_id=1; trial_id < (nb_trials + 1); trial_id++) {
+      // Send a command to log trial initiation
+      // time,O,block_id,trial_id,valve_identity
       Serial.print(String(millis()));
       Serial.print(",O,");
       Serial.print(String(current_block));
@@ -55,96 +67,162 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
       Serial.print(",");
       Serial.println(String(block_order[trial_id-1]+1));
       
+      // we need to initialize a few variables
       byte odor_on=1;
       byte outcome_on=0;
       byte outcome_code=odor_valence[block_order[trial_id-1]];
-       
-      unsigned long start_count_time;
-      start_count_time=millis();
-      
+      unsigned long start_count_time=millis();
       byte lastLickState=0;
       byte lickState=0;
       int countLicks=0;
+      
+      // state monitors the status of the trial
+      // 0: odor delivery started, 1: odor deliveryy ended, 2: outcome delivery started, 3: outcome delivery ended, 4: end, initiate ITI
       int state=0;
 
-      stimulusOlfacto(odors[block_order[trial_id-1]]); // start odor delivery from olfactometer
+      // start odor delivery from olfactometer
+      stimulusOlfacto(odors[block_order[trial_id-1]]);
       
-      while(state < 4){
-        lickState=digitalRead(lickInPin);
-        if(lickState != lastLickState){
-          if(lickState == HIGH){
-            countLicks++;
-            Serial.print(String(millis()));
-            Serial.print(",L,");
-            Serial.print(String(current_block));
-            Serial.print(",");
-            Serial.print(String(trial_id));
-            Serial.print(",");
-            Serial.print(String(countLicks));
-            Serial.println(",1");
-          }
-          else{
-            Serial.print(String(millis()));
-            Serial.print(",L,");
-            Serial.print(String(current_block));
-            Serial.print(",");
-            Serial.print(String(trial_id));
-            Serial.print(",");
-            Serial.print(String(countLicks));
-            Serial.println(",0");
-          }
-          lastLickState=lickState;
-        }
-        switch(state)
-        {
-          case 0:
-            if(millis() > (start_count_time + duration_odor_sampling)){
-              state=1;
-            }
-            break;
-          case 1:
-            if(odor_on == 1){
-                //present blank between odorants
-                odor_on=0;
-            }
-            else if(millis() > (start_count_time + duration_odor_sampling + duration_wait)){
-              state=2;
-            }
-            break;
-          case 2:
-            if((outcome_on == 0) && (outcome_code != 0)){
-              switch(outcome_code){
-                case 1:
-                  deliverWaterReward(reward_solenoid_length);
-                  outcome_on=2;
-                  break;
-                case 2:
-                  digitalWrite(punishmentOutPin,HIGH);
-                  outcome_on=1;
-                  break;
-              }
+      if(mode == 1){ // Option 1, phase 2
+        while(state < 4){
+          // # Check the status of the lickometer
+          lickState=digitalRead(lickInPin); // read status
+          if(lickState != lastLickState){ // if status has changed
+            if(lickState == HIGH){ // if a lick just started
+              countLicks++;
+              // Log the lick
+              // time,L,block_id,trial_id,lick_id,1
               Serial.print(String(millis()));
-              Serial.print(",US,");
+              Serial.print(",L,");
               Serial.print(String(current_block));
               Serial.print(",");
               Serial.print(String(trial_id));
               Serial.print(",");
-              Serial.print(String(outcome_code));
+              Serial.print(String(countLicks));
               Serial.println(",1");
             }
-            else if(millis() > (start_count_time + duration_odor_sampling + duration_wait + duration_outcome)){
-              state=3;
+            else{ // if a lick just ended
+              // Log the lick
+              // time,L,block_id,trial_id,lick_id,0
+              Serial.print(String(millis()));
+              Serial.print(",L,");
+              Serial.print(String(current_block));
+              Serial.print(",");
+              Serial.print(String(trial_id));
+              Serial.print(",");
+              Serial.print(String(countLicks));
+              Serial.println(",0");
             }
-            break;
-          case 3:
-            if(outcome_code == 2){
-              digitalWrite(punishmentOutPin,LOW);
+            lastLickState=lickState;
+          }
+          switch(state)
+          {
+            case 0:
+              if(millis() > (start_count_time + duration_odor_sampling)){
+                state=1;
+              }
+              break;
+            case 1:
+              if(millis() > (start_count_time + duration_odor_sampling + duration_wait)){
+                state=2;
+              }
+              break;
+            case 2:
+              if((outcome_on == 0) && (outcome_code != 0)){
+                switch(outcome_code){
+                  case 1:
+                    deliverWaterReward(reward_solenoid_length);
+                    outcome_on=2;
+                    break;
+                  case 2:
+                    digitalWrite(punishmentOutPin,HIGH);
+                    outcome_on=1;
+                    break;
+                }
+                // log outcome delivery
+                // time,US,block_id,trial_id,outcome_code,1
+                Serial.print(String(millis()));
+                Serial.print(",US,");
+                Serial.print(String(current_block));
+                Serial.print(",");
+                Serial.print(String(trial_id));
+                Serial.print(",");
+                Serial.print(String(outcome_code));
+                Serial.println(",1");
+              }
+              else if(millis() > (start_count_time + duration_odor_sampling + duration_wait + duration_outcome)){
+                state=3;
+              }
+              break;
+            case 3:
+              if(outcome_code == 2){
+                digitalWrite(punishmentOutPin,LOW);
+              }
+              state=4;
+              break;
+            default:
+              state=0;
+              break;
+          }
+        }
+      }
+      
+      else if(mode == 2){ // go/no-go task
+        unsigned long trigger_time=0;
+        while(state < 4){
+          // # Check the status of the lickometer
+          lickState=digitalRead(lickInPin); // read status
+          if(lickState != lastLickState){ // if status has changed
+            if(lickState == HIGH){ // if a lick just started
+              countLicks++;
+              unsigned long lick_time=millis();
+              // Log the lick
+              // time,L,block_id,trial_id,lick_id,1
+              Serial.print(String(lick_time));
+              Serial.print(",L,");
+              Serial.print(String(current_block));
+              Serial.print(",");
+              Serial.print(String(trial_id));
+              Serial.print(",");
+              Serial.print(String(countLicks));
+              Serial.println(",1");
+              
+              if((outcome_on == 0) && (outcome_code == 1) && (lick_time > start_assessment_window) && (lick_time < (start_assessment_window + duration_assessment_window))){
+                outcome_on=3;
+                trigger_time=lick_time;
+              }
             }
+            else{ // if a lick just ended
+              // Log the lick
+              // time,L,block_id,trial_id,lick_id,0
+              Serial.print(String(millis()));
+              Serial.print(",L,");
+              Serial.print(String(current_block));
+              Serial.print(",");
+              Serial.print(String(trial_id));
+              Serial.print(",");
+              Serial.print(String(countLicks));
+              Serial.println(",0");
+            }
+            lastLickState=lickState;
+          }
+          if((outcome_on == 3) && (millis() > (trigger_time + duration_outcome))){
+            deliverWaterReward(reward_solenoid_length);
+            outcome_on=2;
+            // log outcome delivery
+            // time,US,block_id,trial_id,outcome_code,1
+            Serial.print(String(millis()));
+            Serial.print(",US,");
+            Serial.print(String(current_block));
+            Serial.print(",");
+            Serial.print(String(trial_id));
+            Serial.print(",");
+            Serial.print(String(outcome_code));
+            Serial.println(",1");
+          }
+          if(millis() > start_count_time + duration_wait){
             state=4;
-            break;
-          default:
-            state=0;
-            break;
+          }
         }
       }
       

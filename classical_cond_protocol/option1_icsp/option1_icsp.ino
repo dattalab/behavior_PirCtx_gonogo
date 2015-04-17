@@ -58,6 +58,9 @@ void loop() {
       case 'B':
         current_phase=2;
         break;
+      case 'C':
+        current_phase=3;
+        break;
       case 'W':
         init_water();
         break;
@@ -74,7 +77,10 @@ void loop() {
         p1_tube_training();
         break;
       case 2:
-        opt1_p2_association_training(); //trigger stimuli
+        opt1_p2_association_training();
+        break;
+      case 3:
+        opt2_p2_association_odor();
         break;
     }
   }

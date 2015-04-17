@@ -28,7 +28,7 @@ int nb_odors=2; // nb of odors
     for(int i = 0; i < nb_trials_per_block; i++){
       order[i]=i%2; 
     }
-    odor_stimulation(1, current_block,  order, duration_odor_sampling, duration_wait, duration_outcome, duration_interstimulus_interval, start_assessment_window, duration_assessment_window, odors, odor_valence, odor_name);
+    odor_stimulation(1, current_block, nb_trials_per_block, order, duration_odor_sampling, duration_wait, duration_outcome, duration_interstimulus_interval, start_assessment_window, duration_assessment_window, nb_odors, odors, odor_valence, odor_name);
   }
   Serial.println("KILL");
 }

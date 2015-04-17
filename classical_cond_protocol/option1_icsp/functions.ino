@@ -5,9 +5,11 @@ void deliverWaterReward(int duration_water_reward){
 }
 
 int lengthArrayByte(byte array[]){
-  return sizeof(array)/sizeof(int);
+  return (sizeof(array)/sizeof(int));
 }
 
-int lengthArrayInt(int array[]){
-  return sizeof(array)/sizeof(int);
+int lengthArrayInt(const int* array, size_t size){
+  int mySize;
+  mySize=sizeof(array)/sizeof(int);
+  return mySize;
 }

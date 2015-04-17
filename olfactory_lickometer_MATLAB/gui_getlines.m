@@ -102,7 +102,7 @@ logfile=fopen(savefile_log,'w');
 treatlogfile=fopen(savefile_treatlog,'w');
 
 % Initialize communication with Arduino
-s=serial('/dev/cu.usbmodem1a12441');
+s=serial('/dev/cu.usbmodem1431');
 fopen(s);
 %s.BytesAvailable=1;
 

@@ -1,11 +1,11 @@
 void p1_tube_training(){
   
 // -- Lickport learning parameters
-int lickportphase_successful_required=3; // nb of successful trials required
+int lickportphase_successful_required=21; // nb of successful trials required
 int lickportphase_consecutive_hits=3;
 int lickportphase_delay=10000;
 unsigned int lickportphase_timeout=60000;
-unsigned int lickportphase_minimum_reward_interval=500;
+unsigned int lickportphase_minimum_reward_interval=1000;
 // -- End of parameters
 
 

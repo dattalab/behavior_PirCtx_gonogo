@@ -1,11 +1,7 @@
-void odor_stimulation(int mode, int current_block, int block_order[], int duration_odor_sampling, int duration_wait, int duration_outcome, int duration_interstimulus_interval, int start_assessment_window, int duration_assessment_window, int odors[], int odor_valence[], String odor_name[]){
+void odor_stimulation(int mode, int current_block, int nb_trials, int block_order[], int duration_odor_sampling, int duration_wait, int duration_outcome, int duration_interstimulus_interval, int start_assessment_window, int duration_assessment_window, int nb_odors, int odors[], int odor_valence[], String odor_name[]){
     // Setup the olfactometer
     setDurationOlfacto(duration_odor_sampling); // send duration to olfactometer
     idleOlfacto(); // put the olfacto in iddle mode
-    
-    // Retrieve some parameters from the arguments
-    int nb_trials=lengthArrayInt(block_order);
-    int nb_odors=lengthArrayInt(odors);
     
     // Send parameters
     Serial.print(String(millis()));
@@ -57,7 +53,7 @@ void odor_stimulation(int mode, int current_block, int block_order[], int durati
       Serial.print(",");
       Serial.print(String(trial_id));
       Serial.print(",");
-      Serial.println(String(block_order[trial_id-1]));
+      Serial.println(String(block_order[trial_id-1]+1));
       
       byte odor_on=1;
       byte outcome_on=0;

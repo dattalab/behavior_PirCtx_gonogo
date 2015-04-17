@@ -1,26 +1,18 @@
-void association_training() {
-    Serial.print("// ");
-    Serial.print(String(millis()));
-    Serial.println(",PHASE,2");
+void odor_stimulation(int mode, int current_block, int block_order[], int duration_odor_sampling, int duration_wait, int duration_outcome, int duration_interstimulus_interval, int start_assessment_window, int duration_assessment_window, int odors[], int odor_valence[], String odor_name[]){
+    // Setup the olfactometer
+    setDurationOlfacto(duration_odor_sampling); // send duration to olfactometer
+    idleOlfacto(); // put the olfacto in iddle mode
     
-  for (int current_block = 1; current_block < (nb_blocks + 1); current_block++) {
-    int order[nb_trials_per_block];
-    for(int i = 0; i < nb_trials_per_block; i++){
-      order[i]=i%2; 
-    }
+    // Retrieve some parameters from the arguments
+    int nb_trials=lengthArrayInt(block_order);
+    int nb_odors=lengthArrayInt(odors);
     
-    // send duration to olfactometer
-    setDurationOlfacto(duration_odor_sampling);
-    
-    // put the olfacto in iddle mode
-    idleOlfacto();
-    
-    
+    // Send parameters
     Serial.print(String(millis()));
     Serial.print(",BIP,");
     Serial.print(String(current_block));
     Serial.print(",");
-    Serial.print(String(nb_trials_per_block));
+    Serial.print(String(nb_trials));
     Serial.print(",");
     Serial.println(String(nb_odors));
     
@@ -58,35 +50,28 @@ void association_training() {
       Serial.println(String(odors[i]));
     }
     
-    for (int current_odor=0; current_odor < nb_trials_per_block; current_odor++) {
+    for (int trial_id=1; trial_id < (nb_trials + 1); trial_id++) {
       Serial.print(String(millis()));
       Serial.print(",O,");
       Serial.print(String(current_block));
       Serial.print(",");
-      Serial.print(String(current_odor+1));
+      Serial.print(String(trial_id));
       Serial.print(",");
-      Serial.println(String(order[current_odor]));
+      Serial.println(String(block_order[trial_id-1]));
       
-      //deliver odorant
       byte odor_on=1;
       byte outcome_on=0;
-      byte outcome_code=odor_valence[order[current_odor]];
-      byte outcome_pin;
-      if(outcome_code == 2){
-        outcome_pin = punishmentOutPin;
-      }
-      else{
-        outcome_pin = solenoidOutPin;
-      }
+      byte outcome_code=odor_valence[block_order[trial_id-1]];
        
       unsigned long start_count_time;
       start_count_time=millis();
+      
       byte lastLickState=0;
       byte lickState=0;
       int countLicks=0;
       int state=0;
 
-      stimulusOlfacto(odors[order[current_odor]]);
+      stimulusOlfacto(odors[block_order[trial_id-1]]); // start odor delivery from olfactometer
       
       while(state < 4){
         lickState=digitalRead(lickInPin);
@@ -97,7 +82,7 @@ void association_training() {
             Serial.print(",L,");
             Serial.print(String(current_block));
             Serial.print(",");
-            Serial.print(String(current_odor+1));
+            Serial.print(String(trial_id));
             Serial.print(",");
             Serial.print(String(countLicks));
             Serial.println(",1");
@@ -107,7 +92,7 @@ void association_training() {
             Serial.print(",L,");
             Serial.print(String(current_block));
             Serial.print(",");
-            Serial.print(String(current_odor+1));
+            Serial.print(String(trial_id));
             Serial.print(",");
             Serial.print(String(countLicks));
             Serial.println(",0");
@@ -132,18 +117,21 @@ void association_training() {
             break;
           case 2:
             if((outcome_on == 0) && (outcome_code != 0)){
-              digitalWrite(outcome_pin,HIGH);
-              outcome_on=1;
-              if(outcome_code == 1){
-                delay(reward_solenoid_length);
-                digitalWrite(solenoidOutPin,LOW);
-                outcome_on=2;
+              switch(outcome_code){
+                case 1:
+                  deliverWaterReward(reward_solenoid_length);
+                  outcome_on=2;
+                  break;
+                case 2:
+                  digitalWrite(punishmentOutPin,HIGH);
+                  outcome_on=1;
+                  break;
               }
               Serial.print(String(millis()));
               Serial.print(",US,");
               Serial.print(String(current_block));
               Serial.print(",");
-              Serial.print(String(current_odor+1));
+              Serial.print(String(trial_id));
               Serial.print(",");
               Serial.print(String(outcome_code));
               Serial.println(",1");
@@ -153,7 +141,9 @@ void association_training() {
             }
             break;
           case 3:
-            digitalWrite(outcome_pin,LOW);
+            if(outcome_code == 2){
+              digitalWrite(punishmentOutPin,LOW);
+            }
             state=4;
             break;
           default:
@@ -164,6 +154,4 @@ void association_training() {
       
       delay(duration_interstimulus_interval);
     }
-}
-Serial.println("KILL");
 }

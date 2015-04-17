@@ -1,4 +1,14 @@
-void tube_training(){
+void p1_tube_training(){
+  
+// -- Lickport learning parameters
+int lickportphase_successful_required=3; // nb of successful trials required
+int lickportphase_consecutive_hits=3;
+int lickportphase_delay=10000;
+unsigned int lickportphase_timeout=60000;
+unsigned int lickportphase_minimum_reward_interval=500;
+// -- End of parameters
+
+
   int nb_successful_trials=0;
   int nb_consecutive_successful_trials=0;
   unsigned long start_count_time;
@@ -25,6 +35,11 @@ void tube_training(){
     Serial.println(String(lickportphase_timeout));
     
   while(nb_successful_trials < lickportphase_successful_required){
+    digitalWrite(LED1OutPin,HIGH);
+    digitalWrite(LED2OutPin,HIGH);
+    while(digitalRead(buttonInPin) != HIGH){};
+    digitalWrite(LED1OutPin,LOW);
+    digitalWrite(LED2OutPin,LOW);
     current_block++;
     nb_consecutive_successful_trials=0;
     start_count_time=millis();
@@ -85,16 +100,15 @@ void tube_training(){
             delay(reward_solenoid_length);
             digitalWrite(solenoidOutPin,LOW);
             Serial.print(String(millis()));
-            Serial.print(",US,0,0,1,1");
+            Serial.println(",US,0,0,1,1");
       }
     }
     Serial.print(millis());
-    Serial.print(",WAIT_BUTTON");
+    Serial.println(",WAIT_BUTTON");
     digitalWrite(LED1OutPin,HIGH);
     delay(lickportphase_delay);
-    digitalWrite(LED2OutPin,HIGH);
-    while(digitalRead(buttonInPin) != HIGH){};
-    digitalWrite(LED1OutPin,LOW);
-    digitalWrite(LED2OutPin,LOW);
   }
+  digitalWrite(LED1OutPin,LOW);
+  digitalWrite(LED2OutPin,LOW);
+  Serial.println("KILL");
 }

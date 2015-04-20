@@ -61,8 +61,11 @@ void loop() {
       case 'C':
         current_phase=3;
         break;
+      case 'R':
+        deliverWaterReward(reward_solenoid_length);
+        break;
       case 'W':
-        init_water();
+        deliverWaterReward(200);
         break;
       case 'Z':
         current_go=1;

@@ -170,8 +170,7 @@ while(go == 1)
                 set(handles.textTrialCount,'String',sprintf('0/%d',block_param.nb_trials(current_block_id)));
                 current_odor_table=cell(block_param.nb_odors(current_block_id),3);
             elseif(current_block_id == 0 || str2num(split_last_line{3}) ~= current_block_id)
-                dualfprintf(treatlogfile,'Error: does not match current block id. Starts log-only mode.',[]);
-                logmode_only=1;
+                dualfprintf(treatlogfile,'Error: does not match current block id. Command non treated: %s.',last_line);
             elseif((strcmp(split_last_line{2},'BIW')) && (progression.init_assessment_window(current_block_id) == 0))
                 block_param.start_assessment_window(current_block_id)=str2num(split_last_line{4});
                 block_param.duration_assessment_window(current_block_id)=str2num(split_last_line{5});
@@ -250,6 +249,7 @@ while(go == 1)
             disp(last_line);
         end
         drawnow
+        save(savefile_data,'block_param','lick_events','lick_events_raw','odors','trial_info','score_trials','performance_hitrate','us_events_raw','us_events');
     end
 end
 

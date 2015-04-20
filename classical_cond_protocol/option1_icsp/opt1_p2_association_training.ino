@@ -3,7 +3,7 @@ void opt1_p2_association_training() {
   // -- Odor association US/CS learning 
   // -- Associative learning parameters TO CHANGE HERE
   // Trial number
-  int nb_blocks = 10; // nb of blocks to run
+  int nb_blocks = 5; // nb of blocks to run
   int nb_trials_per_block=20; // nb of trials per block
   // Durations
   int duration_odor_sampling = 1000; // duration of odor sampling
@@ -23,13 +23,13 @@ void opt1_p2_association_training() {
   Serial.print(String(millis()));
   Serial.println(",OPTION,1,PHASE,2");
     
-  for (int current_block = 1; current_block < (nb_blocks + 1); current_block++) {
+  for (int block_id = 1; block_id < (nb_blocks + 1); block_id++) {
     int order[nb_trials_per_block];
     for(int i = 0; i < nb_trials_per_block; i++){
       order[i]=i%2; 
     }
     randomizeArray(order,nb_trials_per_block);
-    odor_stimulation(1, current_block, nb_trials_per_block, order, duration_odor_sampling, duration_wait, duration_outcome, duration_interstimulus_interval, start_assessment_window, duration_assessment_window, nb_odors, odors, odor_valence, odor_name);
+    odor_stimulation(1, block_id, nb_trials_per_block, order, duration_odor_sampling, duration_wait, duration_outcome, duration_interstimulus_interval, start_assessment_window, duration_assessment_window, nb_odors, odors, odor_valence, odor_name);
   }
   Serial.println("KILL");
 }

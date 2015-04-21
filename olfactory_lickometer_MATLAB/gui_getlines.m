@@ -10,7 +10,7 @@ function varargout = gui_getlines(varargin)
 %      function named CALLBACK in GUI_GETLINES.M with the given input arguments.
 %
 %      GUI_GETLINES('Property','Value',...) creates a new GUI_GETLINES or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
+%      existing singleton*.  Starting from thse left, property value pairs are
 %      applied to the GUI before gui_getlines_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
 %      stop.  All inputs are passed to gui_getlines_OpeningFcn via varargin.
@@ -22,7 +22,7 @@ function varargout = gui_getlines(varargin)
 
 % Edit the above text to modify the response to help gui_getlines
 
-% Last Modified by GUIDE v2.5 17-Mar-2015 14:44:56
+% Last Modified by GUIDE v2.5 21-Apr-2015 12:18:26
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -80,7 +80,7 @@ function varargout = gui_getlines_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 function []=do_acquisition(handles)
-global last_update, global tStart;
+global last_update, global tStart, global running_state;
 tStart=tic;
 last_update=toc(tStart);
 
@@ -130,22 +130,22 @@ us_events_raw={};
 us_events={};
 current_block_id=0;
 current_trial=0;
-go=1;
+running_state=1;
 last_line='';
 connexion_ok=0;
 past_trials=[];
 performance_hitrate=[];
 score_trials=[];
 
-while(go == 1)
+while(running_state > 0)
     if(strcmp(last_line,'KILL'))
-        go=0;
+        running_state=0;
     elseif(s.BytesAvailable > 0)
         last_line_n=fgetl(s);
         %last_line_n=fgets(logfile);
         last_line=last_line_n(1:end-1);
         if(strcmp(last_line(1:4),'KILL'))
-            go=0;
+            running_state=0;
         elseif(~strcmp(last_line(1),'/') && logmode_only == 0)
             fwrite(logfile,sprintf('%s\n',last_line));
             split_last_line=strsplit(last_line,',');
@@ -357,3 +357,75 @@ function lickingRatePlot_DeleteFcn(hObject, eventdata, handles)
 % hObject    handle to lickingRatePlot (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pauseButton.
+function pauseButton_Callback(hObject, eventdata, handles)
+% hObject    handle to pauseButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of pauseButton
+
+
+% --- Executes on button press in stopButton.
+function stopButton_Callback(hObject, eventdata, handles)
+% hObject    handle to stopButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of stopButton
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over stopButton.
+function stopButton_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to stopButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global running_state;
+running_state=0;
+
+set(handles.stopButton,'Enable','off');
+set(handles.startButton,'Enable','on');
+set(handles.pauseButton,'Enable','off');
+set(handles.resumeButton,'Enable','off');
+set(handles.pauseButton,'Visible','on');
+set(handles.resumeButton','Visible','off');
+
+
+% --- Executes on button press in resumeButton.
+function resumeButton_Callback(hObject, eventdata, handles)
+% hObject    handle to resumeButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of resumeButton
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over resumeButton.
+function resumeButton_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to resumeButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global running_state;
+running_state=1;
+set(handles.pauseButton,'Visible','on');
+set(handles.pauseButton,'Enable','on');
+set(handles.resumeButton','Visible','off');
+set(handles.resumeButton','Enable','off');
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over pauseButton.
+function pauseButton_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to pauseButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global running_state;
+running_state=2;
+set(handles.resumeButton,'Visible','on');
+set(handles.resumeButton,'Enable','on');
+set(handles.pauseButton','Visible','off');
+set(handles.pauseButton','Enable','off');

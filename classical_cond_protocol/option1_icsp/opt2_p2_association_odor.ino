@@ -30,6 +30,10 @@ void opt2_p2_association_odor() {
     }
     randomizeArray(order,nb_trials_per_block);
     odor_stimulation(2, current_block, nb_trials_per_block, order, duration_odor_sampling, duration_wait, delay_reward_delivery, duration_interstimulus_interval, start_assessment_window, duration_assessment_window, nb_odors, odors, odor_valence, odor_name);
+    checkPauseResume(running_state);
+    if(running_state == 2){
+       current_block=nb_blocks+1;
+    }
   }
   Serial.println("KILL");
 }

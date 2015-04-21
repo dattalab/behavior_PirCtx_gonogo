@@ -19,6 +19,7 @@ const int punishment_airpuff_duration=500;
 
 int current_phase=2;
 byte current_go=0;
+int running_state=1; // this is a little indicator to be able to stop/resume/pause the execution
 char serial_read;
 
 void setup() { 
@@ -75,6 +76,7 @@ void loop() {
   
   if(current_go == 1 || digitalRead(buttonInPin) == HIGH){
     current_go=0;
+    running_state=1;
     switch(current_phase){
       case 1:
         p1_tube_training();

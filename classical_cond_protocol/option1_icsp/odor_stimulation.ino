@@ -1,4 +1,31 @@
+// This function is used to make a training block
+// Mode: 1/2 (classical conditioning / go/no-go)
+// Nb of trials (int)
+// Order of the odors (array int, length has to match nb of trials): id of the odors
+// Duration of odor sampling (int, ms)
+// Nb of odors (int)
+// Odor valves (array int, length has to match nb of odors): valves on the olfactometer board
+// Odor valence (array int, length has to match nb of odors): outcome codes of the different odors (1: water reward, 0: nothing)
+// Odor names (array string, length has to match nb of odors)
+//
+// MODE 1: classical conditioning, the US is delivered independently of the mouse licking behavior
+// Parameters:
+// Waiting duration (int, ms)
+// Duration of outcome phase (int, ms)
+// ISI duration (int, ms)
+// Start of assessment window (int, ms)
+// Duration of assessment window (int, ms)
+//
+// MODE 2: go/no-go task, water reward is delivered only if the mouse has licked within the assessment window
+// Parameters:
+// Waiting duration (int, ms): trial time after odor delivery
+// Delay between licking and water reward delivery (int, ms)
+// ISI duration (ms)
+// Start of assessment window (int, ms) for licking
+// Duration of assessment window
+
 void odor_stimulation(int mode, int current_block, int nb_trials, int block_order[], int duration_odor_sampling, int duration_wait, int duration_outcome, int duration_interstimulus_interval, int start_assessment_window, int duration_assessment_window, int nb_odors, int odors[], int odor_valence[], String odor_name[]){
+  
     // Setup the olfactometer
     setDurationOlfacto(duration_odor_sampling); // send duration to olfactometer
     idleOlfacto(); // put the olfacto in iddle mode
@@ -227,5 +254,10 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
       }
       
       delay(duration_interstimulus_interval);
+      
+      checkPauseResume(running_state);
+      if(running_state == 2){
+        trial_id=nb_trials+1;
+      }
     }
 }

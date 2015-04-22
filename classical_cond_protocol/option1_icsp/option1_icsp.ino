@@ -3,26 +3,33 @@
 #include <SPI.h>
 #include "SPI_anything.h"
 
-// wiring info
-const byte buttonInPin = 2;
-const byte LED1OutPin = 6;
-const byte LED2OutPin = 7;
-const byte icspOutPin = 8;
-const byte lickInPin = 3;
+// Wiring information
+const byte buttonInPin = 2; // Push button
+const byte LED1OutPin = 6; // Green LED
+const byte LED2OutPin = 7; // Red LED
+const byte icspOutPin = 8; // ICSP Communication Pin
+const byte lickInPin = 3; // Capacitor
 const byte solenoidOutPin = 4;
-const byte punishmentOutPin = 5;
+const byte punishmentOutPin = 5; // Airpuff
+int randomInPin = 11; // Analog input for random seed generation
 
 // parameters of TTL & flow
 const int pulse_length = 100;
 const int reward_solenoid_length=15;
 const int punishment_airpuff_duration=500;
 
-int current_phase=2;
-byte current_go=0;
+// These variables are used to know what program to launch & when
+int current_phase=2; // program to launch
+byte current_go=0; // set to 0 to wait, 1 to start immediately
 int running_state=1; // this is a little indicator to be able to stop/resume/pause the execution
+int* pRunningState;
 char serial_read;
+int randomITI[20];
 
-void setup() { 
+void setup(){ // initialization
+
+  // set pin status
+  pinMode(randomInPin,INPUT);
   pinMode(buttonInPin,INPUT);
   pinMode(LED1OutPin,OUTPUT);
   pinMode(LED2OutPin,OUTPUT);
@@ -36,12 +43,19 @@ void setup() {
   digitalWrite(solenoidOutPin,LOW);
   digitalWrite(punishmentOutPin,LOW);
   
+  // ICSP communication initialization with olfactometer (the board acts as a slave)
   pinMode(MISO, OUTPUT);
   // turn on SPI in slave mode
   SPCR |= _BV(SPE);
   
-  Serial.begin(9600);
+  // initialize random number generator seed
+  randomSeed(analogRead(randomInPin));
   
+  // running state pointer assignment
+  pRunningState=&running_state;
+  
+  // start Serial communication with computer
+  Serial.begin(9600);
   Serial.print(millis());
   Serial.println(",CONOK,1");
 
@@ -49,6 +63,8 @@ void setup() {
 
 
 void loop() {
+  // This is the main entrance, it actually waits for Serial input to know what program to start and when
+  
   if(Serial.available()){
     serial_read=Serial.read();
     switch(serial_read){
@@ -62,6 +78,12 @@ void loop() {
       case 'C':
         current_phase=3;
         break;
+      case 'G':
+        randITI(randomITI,20,2.0,0.0,25);
+        for(int t=0; t<20; t++){
+          Serial.println(randomITI[t]);
+        }
+        break;
       case 'R':
         deliverWaterReward(reward_solenoid_length);
         break;
@@ -74,6 +96,7 @@ void loop() {
     }
   }
   
+  // if a start command has been received or if the push button has been pressed, start the program
   if(current_go == 1 || digitalRead(buttonInPin) == HIGH){
     current_go=0;
     running_state=1;

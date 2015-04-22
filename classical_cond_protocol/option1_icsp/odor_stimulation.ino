@@ -12,7 +12,7 @@
 // Parameters:
 // Waiting duration (int, ms)
 // Duration of outcome phase (int, ms)
-// ISI duration (int, ms)
+// ISI duration (int, ms): -1 for exponential distribution
 // Start of assessment window (int, ms)
 // Duration of assessment window (int, ms)
 //
@@ -20,15 +20,27 @@
 // Parameters:
 // Waiting duration (int, ms): trial time after odor delivery
 // Delay between licking and water reward delivery (int, ms)
-// ISI duration (ms)
+// ISI duration (ms); -1 for exponential distribution
 // Start of assessment window (int, ms) for licking
 // Duration of assessment window
 
 void odor_stimulation(int mode, int current_block, int nb_trials, int block_order[], int duration_odor_sampling, int duration_wait, int duration_outcome, int duration_interstimulus_interval, int start_assessment_window, int duration_assessment_window, int nb_odors, int odors[], int odor_valence[], String odor_name[]){
-  
+    
     // Setup the olfactometer
     setDurationOlfacto(duration_odor_sampling); // send duration to olfactometer
     idleOlfacto(); // put the olfacto in iddle mode
+    
+    // Randomize ITI if ITI = -1
+    int duration_ITI[nb_trials];
+    if(duration_interstimulus_interval == -1){
+      randITI(duration_ITI,nb_trials,3.0,0.0,25);
+      randomizeArray(duration_ITI,nb_trials);
+    }
+    else{
+      for(int t=0; t<nb_trials; t++){
+        duration_ITI[t]=duration_interstimulus_interval;
+      }
+    }
     
     // ### Send parameters ###
     // # Block initiation parameters
@@ -252,11 +264,13 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
           }
         }
       }
-      
-      delay(duration_interstimulus_interval);
-      
-      checkPauseResume(running_state);
-      if(running_state == 2){
+      Serial.print("// ITI ");
+      Serial.println(duration_ITI[trial_id-1]);
+      delay(duration_ITI[trial_id-1]);
+
+      // Running status management
+      checkPauseResume();
+      if(*pRunningState == 2){
         trial_id=nb_trials+1;
       }
     }

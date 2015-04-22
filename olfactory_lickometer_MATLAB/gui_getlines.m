@@ -22,7 +22,7 @@ function varargout = gui_getlines(varargin)
 
 % Edit the above text to modify the response to help gui_getlines
 
-% Last Modified by GUIDE v2.5 21-Apr-2015 12:18:26
+% Last Modified by GUIDE v2.5 21-Apr-2015 21:42:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -80,11 +80,9 @@ function varargout = gui_getlines_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 function []=do_acquisition(handles)
-global last_update, global tStart, global running_state;
+global last_update, global tStart, global running_state, global s;
 tStart=tic;
 last_update=toc(tStart);
-
-set(handles.startButton,'Enable','off');
 
 delete(instrfindall);
 
@@ -131,7 +129,7 @@ us_events={};
 current_block_id=0;
 current_trial=0;
 running_state=1;
-last_line='';
+last_line='/';
 connexion_ok=0;
 past_trials=[];
 performance_hitrate=[];
@@ -248,7 +246,6 @@ while(running_state > 0)
         else
             disp(last_line);
         end
-        drawnow
         save(savefile_data,'block_param','lick_events','lick_events_raw','odors','trial_info','score_trials','performance_hitrate','us_events_raw','us_events');
     end
 end
@@ -349,6 +346,14 @@ function startButton_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of startButton
 
+set(handles.startButton,'Enable','off');
+set(handles.stopButton,'Enable','on');
+set(handles.stopButton,'Visible','on');
+set(handles.pauseButton,'Enable','on');
+set(handles.resumeButton,'Enable','off');
+set(handles.pauseButton,'Visible','on');
+set(handles.resumeButton','Visible','off');
+
 do_acquisition(handles);
 
 
@@ -366,6 +371,13 @@ function pauseButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of pauseButton
+global running_state, global s;
+running_state=2;
+fwrite(s,'P');
+set(handles.resumeButton,'Visible','on');
+set(handles.resumeButton,'Enable','on');
+set(handles.pauseButton','Visible','off');
+set(handles.pauseButton','Enable','off');
 
 
 % --- Executes on button press in stopButton.
@@ -375,6 +387,17 @@ function stopButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of stopButton
+global running_state, global s;
+running_state=0;
+fwrite(s,'S');
+
+set(handles.stopButton,'Enable','off');
+set(handles.startButton,'Enable','on');
+set(handles.startButton,'Visible','on');
+set(handles.pauseButton,'Enable','off');
+set(handles.resumeButton,'Enable','off');
+set(handles.pauseButton,'Visible','on');
+set(handles.resumeButton','Visible','off');
 
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
@@ -383,15 +406,6 @@ function stopButton_ButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to stopButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global running_state;
-running_state=0;
-
-set(handles.stopButton,'Enable','off');
-set(handles.startButton,'Enable','on');
-set(handles.pauseButton,'Enable','off');
-set(handles.resumeButton,'Enable','off');
-set(handles.pauseButton,'Visible','on');
-set(handles.resumeButton','Visible','off');
 
 
 % --- Executes on button press in resumeButton.
@@ -402,6 +416,14 @@ function resumeButton_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of resumeButton
 
+global running_state, global s;
+running_state=1;
+fwrite(s,'R');
+set(handles.pauseButton,'Visible','on');
+set(handles.pauseButton,'Enable','on');
+set(handles.resumeButton','Visible','off');
+set(handles.resumeButton','Enable','off');
+
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
 % --- Otherwise, executes on mouse press in 5 pixel border or over resumeButton.
@@ -409,12 +431,7 @@ function resumeButton_ButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to resumeButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global running_state;
-running_state=1;
-set(handles.pauseButton,'Visible','on');
-set(handles.pauseButton,'Enable','on');
-set(handles.resumeButton','Visible','off');
-set(handles.resumeButton','Enable','off');
+
 
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
@@ -423,9 +440,3 @@ function pauseButton_ButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to pauseButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global running_state;
-running_state=2;
-set(handles.resumeButton,'Visible','on');
-set(handles.resumeButton,'Enable','on');
-set(handles.pauseButton','Visible','off');
-set(handles.pauseButton','Enable','off');

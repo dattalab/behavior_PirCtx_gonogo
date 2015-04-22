@@ -29,9 +29,9 @@ void opt1_p2_association_training() {
       order[i]=i%2; 
     }
     randomizeArray(order,nb_trials_per_block);
-    odor_stimulation(1, block_id, nb_trials_per_block, order, duration_odor_sampling, duration_wait, duration_outcome, duration_interstimulus_interval, start_assessment_window, duration_assessment_window, nb_odors, odors, odor_valence, odor_name);
-    checkPauseResume(running_state);
-    if(running_state == 2){
+    odor_stimulation(1, block_id, nb_trials_per_block, order, duration_odor_sampling, duration_wait, duration_outcome, -1, start_assessment_window, duration_assessment_window, nb_odors, odors, odor_valence, odor_name);
+    checkPauseResume();
+    if(*pRunningState == 2){
        block_id=nb_blocks+1;
     }
   }

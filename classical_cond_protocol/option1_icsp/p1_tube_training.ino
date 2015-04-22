@@ -102,8 +102,8 @@ void p1_tube_training(){
         Serial.print(String(millis()));
         Serial.println(",US,0,0,1,1");
       }
-      checkPauseResume(running_state);
-      if(running_state == 2){
+      checkPauseResume();
+      if(*pRunningState == 2){
          nb_successful_trials=lickportphase_successful_required;
       }
     }

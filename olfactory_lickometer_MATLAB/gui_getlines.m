@@ -136,6 +136,9 @@ performance_hitrate=[];
 score_trials=[];
 
 while(running_state > 0)
+    if(running_state == 2)
+        drawnow
+    end
     if(strcmp(last_line,'KILL'))
         running_state=0;
     elseif(s.BytesAvailable > 0)

@@ -5,7 +5,7 @@ void p1_tube_training(){
   int lickportphase_consecutive_hits=3;
   int lickportphase_delay=10000;
   unsigned int lickportphase_timeout=60000;
-  unsigned int lickportphase_minimum_reward_interval=1000;
+  unsigned int lickportphase_minimum_reward_interval=500;
   // -- End of parameters
 
 
@@ -63,6 +63,8 @@ void p1_tube_training(){
           Serial.print(",");
           Serial.print(String(countLicks));
           Serial.println(",1");
+          Serial.println(millis());
+          Serial.println(time_last_reward + lickportphase_minimum_reward_interval);
           if(millis() > (time_last_reward + lickportphase_minimum_reward_interval)){
             nb_consecutive_successful_trials++;
             nb_successful_trials++;
@@ -101,6 +103,7 @@ void p1_tube_training(){
         digitalWrite(solenoidOutPin,LOW);
         Serial.print(String(millis()));
         Serial.println(",US,0,0,1,1");
+        lastLickState=0;
       }
       checkPauseResume();
       if(*pRunningState == 2){

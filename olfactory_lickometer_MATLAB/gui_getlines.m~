@@ -101,7 +101,7 @@ treatlogfile=fopen(savefile_treatlog,'w');
 
 % Initialize communication with Arduino
 list_ports=instrhwinfo('serial');
-port_id = listdlg('PromptString','Select a serial port','SelectionMode','single','ListString',list_ports.AvailableSerialPorts);
+port_id = listdlg('PromptString','Select a port:','SelectionMode','single','ListString',list_ports.AvailableSerialPorts);
 s=serial(list_ports.AvailableSerialPorts{port_id,1});
 fopen(s);
 %s.BytesAvailable=1;

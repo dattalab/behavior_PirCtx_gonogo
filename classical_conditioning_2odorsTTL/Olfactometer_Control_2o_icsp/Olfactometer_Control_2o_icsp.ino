@@ -1,21 +1,13 @@
-#include <SPI.h>
-#include "SPI_anything.h"
-#include "Olfactometer_header.h"
-
-typedef struct commandStruct
-{
-  char cmd='Z';
-  int param=0;
-};
-
 // User-modifiable global variables:
 // =================================
 
 boolean ONE_VALVE_OPEN = true; // When true, exactly one valve is open at a time. Value 1 is open by default.
                                // When false, every value openeing and closing is explicitly controlled by user.
+                               
+boolean DISPLAY_VALVE_STATUS = true; // Write all valve openings/closing to USB
 
-float CARRIER_FLOW_RATE = 1.0; // in LPM
-float ODOR_FLOW_RATE = 0.2; // in LPM
+float CARRIER_FLOW_RATE = 1.0; // default carrier rate in LPM
+float ODOR_FLOW_RATE = 0.2; // default carrier rate in LPM
 
 // =================================
 int stimulus_duration = 1000; // default stimulus duration
@@ -26,6 +18,22 @@ int last_odor=0;
 // Valve control functions
 
 int current_valve = 1;
+
+// ==============
+
+#include <SPI.h>
+#include "SPI_anything.h"
+#include "Olfactometer_header.h"
+
+typedef struct commandStruct
+{
+  char cmd='Z';
+  int param=0;
+};
+
+commandStruct rCommand;
+float lastCarrierFlowMeasure;
+float lastOdorFlowMeasure;
 
 // === SETUP ===
 // the setup function runs once when you press reset or power the board
@@ -39,11 +47,14 @@ void setup() {
   if (ONE_VALVE_OPEN) {
     digitalWrite(V1, HIGH);
   }
+  pinMode(icspOutPin,OUTPUT);
+  digitalWrite(icspOutPin,LOW);
+
+  // have to send on master in, *slave out*
+  pinMode(MISO, OUTPUT);
   
-    pinMode(BNC_pin,INPUT);
-    SPI.begin ();
-  // Slow down the master a bit
-  SPI.setClockDivider(SPI_CLOCK_DIV32);
+  // turn on SPI in slave mode
+  SPCR |= _BV(SPE);
   
   // start connections with the MFCs (Serial1 / RS485)
   pinMode(RTS_pin, OUTPUT);
@@ -59,23 +70,7 @@ void setup() {
   Serial.begin(9600);
   
   delay(3000);
-  Serial.println("CARRIER Flow Rate: ");
-  Serial.print(" Set to: ");
-  Serial.print(CARRIER_FLOW_RATE);
-  Serial.println(" LPM");
-  Serial.print(" Actual: ");
-  Serial.print(getMFCFlowRate(carrier_address));
-  Serial.println(" LPM");
-  Serial.println("");
-
-  Serial.println("ODOR Flow Rate: ");
-  Serial.print(" Set to: ");
-  Serial.print(ODOR_FLOW_RATE);
-  Serial.println(" LPM");
-  Serial.print(" Actual: ");
-  Serial.print(getMFCFlowRate(odor_address));
-  Serial.println(" LPM");
-  Serial.println("");
+  displayFlowRates();
 
 }
 
@@ -84,85 +79,52 @@ void setup() {
 // === MAIN LOOP ===
 // =================
 
-
-
-
-
 void loop() {
-   if(digitalRead(BNC_pin) == HIGH){
-     commandStruct rCommand;
-      digitalWrite(SS,LOW);
-      SPI_readAnything (rCommand);
-      digitalWrite(SS,HIGH);
-      switch(rCommand.cmd){
-        case 'T':
-          olfStim(rCommand.param);
-          break;
-        case 'O':
-          OpenValve(rCommand.param);
-          break;
-        case 'C':
-          CloseValve(rCommand.param);
-          break;
-        case 'D':
-          stimulus_duration=rCommand.param;
-          Serial.print("Duration changed to ");
-          Serial.println(String(rCommand.param));
-          break;
-        case 'I':
-          idle();
-          break;
-      }
-      Serial.print("CARRIER rate: ");
-      Serial.println(getMFCFlowRate(carrier_address));
-      Serial.print("ODOR rate: ");
-      Serial.println(getMFCFlowRate(odor_address));
-      Serial.println("");
+    if(digitalRead(SS) == LOW){
+     SPI_readAnything(rCommand);
+        switch(rCommand.cmd){
+          case 'T':
+            olfStim(int(rCommand.param));
+            sendFlowInfoToMaster(rCommand.param, (int) lastCarrierFlowMeasure*100, (int) lastOdorFlowMeasure*100);
+            break;
+          case 'O':
+            OpenValve(int(rCommand.param));
+            break;
+          case 'C':
+            CloseValve(int(rCommand.param));
+            break;
+          case 'D':
+            stimulus_duration=rCommand.param;
+            Serial.print("Duration changed to ");
+            Serial.println(String(rCommand.param));
+            break;
+          case 'M':
+            changeMFCFlow(1, (float) rCommand.param/100);
+            displayFlowRates();
+            break;
+          case 'F':
+            changeMFCFlow(1, (float) rCommand.param/100);
+            displayFlowRates();
+            break;
+          case 'I':
+            idle();
+            break;
+        }
     }
-  if (Serial.available()) {
-    char ch = Serial.read();
-    if( isDigit(ch) ) {
-      if ( ch == '0' ) {
-        idle();
-      }
-      else if ( ch == '1' ) {
-        olfStim(2);
-        delay(1000);
-        olfStim(3);
-      }
-      else if(ch == '3'){
-        Serial.print("CARRIER rate: ");
-        Serial.println(getMFCFlowRate(carrier_address));
-        Serial.print("ODOR rate: ");
-        Serial.println(getMFCFlowRate(odor_address));
-        Serial.println("");
-      }
-    }
-  }
+//  if (Serial.available()) {
+//    char ch = Serial.read();
+//    if( isDigit(ch) ) {
+//      if ( ch == '0' ) {
+//        idle();
+//      }
+//      else if ( ch == '1' ) {
+//        olfStim(2);
+//        delay(1000);
+//        olfStim(3);
+//      }
+//      else if(ch == '3'){
+//        displayFlowRates();
+//      }
+//    }
+//  }
 }
-
-
-
-
-
-void olfStim(int v) {
-  if(v < (num_valves+1)){
-        OpenValve(v);
-        delay(stimulus_duration);    
-        CloseValve(v);
-  }
-}
-
-void idle() {
-  // close valves  
-  for (int v=0; v<num_valves; v++) {
-    digitalWrite(all_valves[v], LOW);
-  }
-  // open valve 1 if necessary
-  if (ONE_VALVE_OPEN) {
-    current_valve = 1;
-    digitalWrite(V1, HIGH);
-  }
-}
-    
-    

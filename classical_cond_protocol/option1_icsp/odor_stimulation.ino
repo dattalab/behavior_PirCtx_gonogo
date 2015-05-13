@@ -114,6 +114,7 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
       byte lastLickState=0;
       byte lickState=0;
       int countLicks=0;
+      byte statusFlow=0;
       
       // state monitors the status of the trial
       // 0: odor delivery started, 1: odor deliveryy ended, 2: outcome delivery started, 3: outcome delivery ended, 4: end, initiate ITI
@@ -153,6 +154,23 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
               Serial.println(",0");
             }
             lastLickState=lickState;
+          }
+          // # Look for olfactometer board feedback (flowrates)
+          if(statusFlow == 0){
+            if(digitalRead(icspInPin) == HIGH){
+              digitalWrite(SS,LOW);
+              SPI_readAnything (olfactoFeedback);
+              digitalWrite(SS,HIGH);
+              Serial.print("// ");
+              Serial.print(String(millis()));
+              Serial.print(",FR,0,");
+              Serial.print(String(olfactoFeedback.param1));
+              Serial.print(",");
+              Serial.print(String(olfactoFeedback.param2));
+              Serial.print(",");
+              Serial.println(String(olfactoFeedback.param3));
+              statusFlow=1;
+             }
           }
           switch(state)
           {
@@ -264,7 +282,13 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
           }
         }
       }
-      Serial.print("// ITI ");
+      Serial.print("// ");
+      Serial.print(String(millis()));
+      Serial.print(",ITI,");
+      Serial.print(String(current_block));
+      Serial.print(",");
+      Serial.print(String(trial_id));
+      Serial.print(",");
       Serial.println(duration_ITI[trial_id-1]);
       delay(duration_ITI[trial_id-1]);
 

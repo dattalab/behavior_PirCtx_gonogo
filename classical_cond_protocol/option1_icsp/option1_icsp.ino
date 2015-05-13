@@ -1,18 +1,10 @@
 // -- Import required libraries
-#include <elapsedMillis.h>
 #include <SPI.h>
 #include "SPI_anything.h"
+#include "wiring.h"
 
-// Wiring information
-const byte buttonInPin = 2; // Push button
-const byte LED1OutPin = 6; // Green LED
-const byte LED2OutPin = 7; // Red LED
-const byte icspOutPin = 8; // ICSP Communication Pin
-const byte lickInPin = 3; // Capacitor
-const byte solenoidOutPin = 4;
-const byte punishmentOutPin = 5; // Airpuff
-int randomInPin = 11; // Analog input for random seed generation
-
+#include <SD.h>
+#include <IniFile.h>
 // parameters of TTL & flow
 const int pulse_length = 100;
 const int reward_solenoid_length=15;
@@ -24,29 +16,23 @@ byte current_go=0; // set to 0 to wait, 1 to start immediately
 int running_state=1; // this is a little indicator to be able to stop/resume/pause the execution
 int* pRunningState;
 char serial_read;
-int randomITI[20];
+int statusFlow=0;
 
+            
+typedef struct olfactoFeedbackStruct
+{
+  char cmd;
+  int param1;
+  int param2;
+  int param3;
+};
+
+      olfactoFeedbackStruct olfactoFeedback;
+      
 void setup(){ // initialization
 
-  // set pin status
-  pinMode(randomInPin,INPUT);
-  pinMode(buttonInPin,INPUT);
-  pinMode(LED1OutPin,OUTPUT);
-  pinMode(LED2OutPin,OUTPUT);
-  pinMode(icspOutPin,OUTPUT);
-  pinMode(lickInPin,INPUT);
-  pinMode(solenoidOutPin,OUTPUT);
-  pinMode(punishmentOutPin,OUTPUT);
-  
-  digitalWrite(LED1OutPin,LOW);
-  digitalWrite(LED2OutPin,LOW);
-  digitalWrite(solenoidOutPin,LOW);
-  digitalWrite(punishmentOutPin,LOW);
-  
-  // ICSP communication initialization with olfactometer (the board acts as a slave)
-  pinMode(MISO, OUTPUT);
-  // turn on SPI in slave mode
-  SPCR |= _BV(SPE);
+  initializePinStatus();
+  initializeIcspOlfacto();
   
   // initialize random number generator seed
   randomSeed(analogRead(randomInPin));
@@ -79,6 +65,7 @@ void loop() {
         current_phase=3;
         break;
       case 'G':
+        int randomITI[20];
         randITI(randomITI,20,2.0,0.0,25);
         for(int t=0; t<20; t++){
           Serial.println(randomITI[t]);
@@ -90,6 +77,27 @@ void loop() {
       case 'W':
         deliverWaterReward(200);
         break;
+      case 'T':
+        // start odor delivery from olfactometer
+        statusFlow=0;
+        stimulusOlfacto(2);
+        while(statusFlow == 0){
+          if(digitalRead(icspInPin) == HIGH){
+            digitalWrite(SS,LOW);
+            SPI_readAnything (olfactoFeedback);
+            digitalWrite(SS,HIGH);
+            Serial.print("// ");
+            Serial.print(String(millis()));
+            Serial.print(",FR,0,");
+            Serial.print(String(olfactoFeedback.param1));
+            Serial.print(",");
+            Serial.print(String(olfactoFeedback.param2/100));
+            Serial.print(",");
+            Serial.println(String(olfactoFeedback.param3/100));
+            statusFlow=1;
+           }
+          }
+         break;
       case 'Z':
         current_go=1;
         break;

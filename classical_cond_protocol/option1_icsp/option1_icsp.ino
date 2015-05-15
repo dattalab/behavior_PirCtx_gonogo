@@ -3,8 +3,6 @@
 #include "SPI_anything.h"
 #include "wiring.h"
 
-#include <SD.h>
-#include <IniFile.h>
 // parameters of TTL & flow
 const int pulse_length = 100;
 const int reward_solenoid_length=15;
@@ -81,22 +79,22 @@ void loop() {
         // start odor delivery from olfactometer
         statusFlow=0;
         stimulusOlfacto(2);
-        while(statusFlow == 0){
-          if(digitalRead(icspInPin) == HIGH){
-            digitalWrite(SS,LOW);
-            SPI_readAnything (olfactoFeedback);
-            digitalWrite(SS,HIGH);
-            Serial.print("// ");
-            Serial.print(String(millis()));
-            Serial.print(",FR,0,");
-            Serial.print(String(olfactoFeedback.param1));
-            Serial.print(",");
-            Serial.print(String(olfactoFeedback.param2/100));
-            Serial.print(",");
-            Serial.println(String(olfactoFeedback.param3/100));
-            statusFlow=1;
-           }
-          }
+//        while(statusFlow == 0){
+//          if(digitalRead(icspInPin) == HIGH){
+//            digitalWrite(SS,LOW);
+//            SPI_readAnything (olfactoFeedback);
+//            digitalWrite(SS,HIGH);
+//            Serial.print("// ");
+//            Serial.print(String(millis()));
+//            Serial.print(",FR,0,");
+//            Serial.print(String(olfactoFeedback.param1));
+//            Serial.print(",");
+//            Serial.print(String(olfactoFeedback.param2/100));
+//            Serial.print(",");
+//            Serial.println(String(olfactoFeedback.param3/100));
+//            statusFlow=1;
+//           }
+//          }
          break;
       case 'Z':
         current_go=1;

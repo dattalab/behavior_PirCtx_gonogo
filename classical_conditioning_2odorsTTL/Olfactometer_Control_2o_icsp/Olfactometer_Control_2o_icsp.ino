@@ -47,14 +47,8 @@ void setup() {
   if (ONE_VALVE_OPEN) {
     digitalWrite(V1, HIGH);
   }
-  pinMode(icspOutPin,OUTPUT);
-  digitalWrite(icspOutPin,LOW);
-
-  // have to send on master in, *slave out*
-  pinMode(MISO, OUTPUT);
   
-  // turn on SPI in slave mode
-  SPCR |= _BV(SPE);
+  initializeIcspBoard();
   
   // start connections with the MFCs (Serial1 / RS485)
   pinMode(RTS_pin, OUTPUT);
@@ -80,12 +74,11 @@ void setup() {
 // =================
 
 void loop() {
-    if(digitalRead(SS) == LOW){
+    if(digitalRead(icspInPin) == HIGH){
      SPI_readAnything(rCommand);
         switch(rCommand.cmd){
           case 'T':
-            olfStim(int(rCommand.param));
-            sendFlowInfoToMaster(rCommand.param, (int) lastCarrierFlowMeasure*100, (int) lastOdorFlowMeasure*100);
+            olfStim(int(rCommand.param),2);
             break;
           case 'O':
             OpenValve(int(rCommand.param));

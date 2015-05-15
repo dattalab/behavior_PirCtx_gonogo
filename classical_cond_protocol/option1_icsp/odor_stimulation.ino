@@ -155,23 +155,23 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
             }
             lastLickState=lickState;
           }
-          // # Look for olfactometer board feedback (flowrates)
-          if(statusFlow == 0){
-            if(digitalRead(icspInPin) == HIGH){
-              digitalWrite(SS,LOW);
-              SPI_readAnything (olfactoFeedback);
-              digitalWrite(SS,HIGH);
-              Serial.print("// ");
-              Serial.print(String(millis()));
-              Serial.print(",FR,0,");
-              Serial.print(String(olfactoFeedback.param1));
-              Serial.print(",");
-              Serial.print(String(olfactoFeedback.param2));
-              Serial.print(",");
-              Serial.println(String(olfactoFeedback.param3));
-              statusFlow=1;
-             }
-          }
+//          // # Look for olfactometer board feedback (flowrates)
+//          if(statusFlow == 0){
+//            if(digitalRead(icspInPin) == HIGH){
+//              digitalWrite(SS,LOW);
+//              SPI_readAnything (olfactoFeedback);
+//              digitalWrite(SS,HIGH);
+//              Serial.print("// ");
+//              Serial.print(String(millis()));
+//              Serial.print(",FR,0,");
+//              Serial.print(String(olfactoFeedback.param1));
+//              Serial.print(",");
+//              Serial.print(String(olfactoFeedback.param2));
+//              Serial.print(",");
+//              Serial.println(String(olfactoFeedback.param3));
+//              statusFlow=1;
+//             }
+//          }
           switch(state)
           {
             case 0:

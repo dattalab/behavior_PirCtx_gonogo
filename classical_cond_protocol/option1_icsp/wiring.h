@@ -2,7 +2,7 @@
 const byte buttonInPin = 2; // Push button
 const byte LED1OutPin = 6; // Green LED
 const byte LED2OutPin = 7; // Red LED
-const byte icspInPin = 8; // ICSP Communication Pin
+const byte icspOutPin = 8; // ICSP Communication Pin
 const byte lickInPin = 3; // Capacitor
 const byte solenoidOutPin = 4;
 const byte punishmentOutPin = 5; // Airpuff
@@ -16,7 +16,7 @@ void initializePinStatus(){
   pinMode(buttonInPin,INPUT);
   pinMode(LED1OutPin,OUTPUT);
   pinMode(LED2OutPin,OUTPUT);
-  pinMode(icspInPin,INPUT);
+  pinMode(icspOutPin,OUTPUT);
   pinMode(lickInPin,INPUT);
   pinMode(solenoidOutPin,OUTPUT);
   pinMode(punishmentOutPin,OUTPUT);
@@ -25,4 +25,5 @@ void initializePinStatus(){
   digitalWrite(LED2OutPin,LOW);
   digitalWrite(solenoidOutPin,LOW);
   digitalWrite(punishmentOutPin,LOW);
+  digitalWrite(icspOutPin,LOW);
 }

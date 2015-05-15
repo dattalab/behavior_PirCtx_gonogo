@@ -274,6 +274,11 @@ fclose(logfile);
 fclose(treatlogfile);
 
 set(handles.startButton,'Enable','on');
+keySet =   {'devid','port'};  
+valueSet = {'vEC15AA83D25910B',list_ports.AvailableSerialPorts(port_id)};  
+mapObj = containers.Map(keySet,valueSet) ;
+res = HTTPGet('http://api.pushingbox.com/pushingbox', mapObj); 
+
 
 function []=updatePerformancePlot(data,handles)
 axes(handles.blockPerformancePlot);

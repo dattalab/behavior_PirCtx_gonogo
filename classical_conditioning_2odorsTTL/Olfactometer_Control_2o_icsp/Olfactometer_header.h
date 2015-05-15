@@ -4,7 +4,7 @@
 // =================================
 // Pin Assignments
 int RTS_pin = A5;
-int icspOutPin = 2;
+int icspInPin = 2;
 int V1 = 3;
 int V2 = 4;
 int V3 = 5;

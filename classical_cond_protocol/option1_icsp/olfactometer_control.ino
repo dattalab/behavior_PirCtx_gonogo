@@ -8,17 +8,23 @@ typedef struct commandStruct
 
 
 void initializeIcspOlfacto(){
-  SPI.begin ();
-  // Slow down the master a bit
-  SPI.setClockDivider(SPI_CLOCK_DIV8);
+  pinMode(icspOutPin,OUTPUT);
+  digitalWrite(icspOutPin,LOW);
+
+  // have to send on master in, *slave out*
+  pinMode(MISO, OUTPUT);
+  
+  // turn on SPI in slave mode
+  SPCR |= _BV(SPE);
 }
 
 // This is the function used to send a command to the olfactometer
 // The icspOutPin serves to signal communication to the olfactometer and is switched to HIGH before transmission / switched back to LOW after transmission
 void sendCommandToOlfacto(struct commandStruct myCmd){
-  digitalWrite(SS, LOW);    // SS is pin 10
-  SPI_writeAnything (myCmd);
-  digitalWrite(SS, HIGH);
+  digitalWrite(icspOutPin,HIGH);
+  SPI_writeAnything(myCmd);
+  digitalWrite(icspOutPin,LOW);
+  delay(15);
 }
 
 // To idle the olfactometer, we send "I/1"

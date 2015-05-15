@@ -65,11 +65,14 @@ void CloseValve(int valveNum) {
   }
 }
 
-void olfStim(int v) {
+void olfStim(int v, int mode) {
   if(v < (num_valves+1)){
     OpenValve(v);
     delay(stimulus_duration);    
     CloseValve(v);
+    if(mode == 2){
+      //sendFlowInfoToBoard(v, int(lastCarrierFlowMeasure*100), int(lastOdorFlowMeasure*100));
+    }
   }
 }
 

@@ -280,6 +280,11 @@ mapObj = containers.Map(keySet,valueSet) ;
 res = HTTPGet('http://api.pushingbox.com/pushingbox', mapObj); 
 
 
+keySet =   {'devid','port'};  
+valueSet = {'vEC15AA83D25910B',list_ports.AvailableSerialPorts{port_id,1}};  
+mapObj = containers.Map(keySet,valueSet)  
+res = HTTPGet('http://api.pushingbox.com/pushingbox', mapObj);
+
 function []=updatePerformancePlot(data,handles)
 axes(handles.blockPerformancePlot);
 plot(handles.blockPerformancePlot,data);

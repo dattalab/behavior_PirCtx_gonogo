@@ -111,18 +111,18 @@ void olfStim() {
      
      //deliver odorant
      digitalWrite(TTL, HIGH);
-     openValve(block_sequence[trial_id]);
+     openValve(block_sequence[trial_id]+1);
          Serial.print(String(millis()));
     Serial.print(",");
-    Serial.print(String(block_sequence[trial_id]));
+    Serial.print(String(block_sequence[trial_id]+1));
     Serial.print(",");
      delay(stimulus_duration);
      digitalWrite(TTL, LOW);
       
-     if(block_sequence[trial_id] < 16){
+     if(block_sequence[trial_id]+1 < 16){
         blankBank(2);
      }
-     else if(block_sequence[trial_id] < 25){
+     else if(block_sequence[trial_id]+1 < 25){
         blankBank(3);
      }
     

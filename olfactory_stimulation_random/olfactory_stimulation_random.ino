@@ -88,7 +88,7 @@ void olfStim() {
           Serial.println("");
         }
       }
-      
+      Serial.println("Enter 1 to validate sequence, otherwwise another one will be generated: ");
       while(Serial.available() == false){}
       
       if(Serial.read() == '1'){

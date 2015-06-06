@@ -96,8 +96,21 @@ void loop() {
             displayFlowRates();
             break;
           case 'F':
-            changeMFCFlow(1, (float) rCommand.param/100);
+            changeMFCFlow(2, (float) rCommand.param/100);
             displayFlowRates();
+            break;
+          case 'W':
+            changeMFCFlow(1, 2.0);
+            changeMFCFlow(2, 0.2);
+            displayFlowRates();
+            while(1){
+              for(int v=2; v<(num_valves+1); v++){
+                OpenValve(v);
+                delay(3000);
+                CloseValve(v);
+              }
+              delay(15);
+            }
             break;
           case 'I':
             idle();

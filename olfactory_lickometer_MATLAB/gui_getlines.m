@@ -86,6 +86,9 @@ last_update=toc(tStart);
 
 delete(instrfindall);
 
+% Gather user input on the name of the program to launch
+program_info = inputdlg({'Name of the program','Step'});
+
 % Choose filenames
 [filename,path]=uiputfile('*.txt','Saving experiment log',['log_' datestr(now,'yymmdd_HHMM') '_serial.txt']);
 savefile_log=fullfile(path,filename);
@@ -103,6 +106,8 @@ treatlogfile=fopen(savefile_treatlog,'w');
 list_ports=instrhwinfo('serial');
 port_id = listdlg('PromptString','Select a serial port','SelectionMode','single','ListString',list_ports.AvailableSerialPorts);
 s=serial(list_ports.AvailableSerialPorts{port_id,1});
+s.InputBufferSize=1024;
+s.BaudRate=115200;
 fopen(s);
 %s.BytesAvailable=1;
 
@@ -137,9 +142,14 @@ past_trials=[];
 performance_hitrate=[];
 score_trials=[];
 
+
+fprintf(s,sprintf('P,%s,%s',program_info{1,1},program_info{2,1}));
+
+fprintf(s,'Z');
+
 while(running_state > 0)
     if(running_state == 2)
-        drawnow
+        drawnow limitrate
     end
     if(strcmp(last_line,'KILL'))
         running_state=0;
@@ -196,6 +206,7 @@ while(running_state > 0)
                 end
                 current_odor_table(odor_id,:)={odors.name{odor_id,current_block_id},odors.valence(odor_id,current_block_id),odors.valve(odor_id,current_block_id)};
                 set(handles.currentBlockTable,'Data',current_odor_table);
+                drawnow limitrate
             elseif(progression.init_duration(current_block_id) == 0 || progression.init_assessment_window(current_block_id) == 0 || progression.init_odors(current_block_id) == 0)
                 logmode_only=1;
                 dualfprintf(treatlogfile,'>> Could not acquire all the parameters before experiment starts. Starts in log-mode only.\n');
@@ -219,6 +230,7 @@ while(running_state > 0)
                 past_trials=[past_trials; current_trial current_block_id];
                 last_update=0;
                 updateTrialPlot('current',current_trial_lickingData,current_trial,current_block_id,trial_info,odors,handles);
+                save(savefile_data,'block_param','lick_events','lick_events_raw','odors','trial_info','score_trials','performance_hitrate','us_events_raw','us_events');
             elseif(strcmp(split_last_line{2},'L'))
                 lick_trial=str2num(split_last_line{4});
                 lick_id=str2num(split_last_line{5});
@@ -233,7 +245,9 @@ while(running_state > 0)
                     lick_events_raw{lick_trial,current_block_id}(lick_id,1)=lick_time_raw;
                     lick_events{lick_trial,current_block_id}(lick_id,1)=lick_time;
                     current_trial_lickingData(lick_id,1)=lick_time;
-                    updateTrialPlot('current',current_trial_lickingData,current_trial,current_block_id,trial_info,odors,handles);
+                    if((toc(tStart)-last_update) > 0.25)
+                        %updateTrialPlot('current',current_trial_lickingData,current_trial,current_block_id,trial_info,odors,handles);
+                    end
                 end
             elseif(strcmp(split_last_line{2},'US'))
                 us_trial=str2num(split_last_line{4});
@@ -251,7 +265,6 @@ while(running_state > 0)
         else
             disp(last_line);
         end
-        save(savefile_data,'block_param','lick_events','lick_events_raw','odors','trial_info','score_trials','performance_hitrate','us_events_raw','us_events');
     end
 end
 
@@ -282,7 +295,7 @@ res = HTTPGet('http://api.pushingbox.com/pushingbox', mapObj);
 
 keySet =   {'devid','port'};  
 valueSet = {'vEC15AA83D25910B',list_ports.AvailableSerialPorts{port_id,1}};  
-mapObj = containers.Map(keySet,valueSet)  
+mapObj = containers.Map(keySet,valueSet);
 res = HTTPGet('http://api.pushingbox.com/pushingbox', mapObj);
 
 function []=updatePerformancePlot(data,handles)
@@ -300,6 +313,8 @@ switch(odors.valence(trial_info.odor_identity(current_trial,current_block_id),cu
         color_line='green';
     case 2
         color_line='red';
+    default
+        color_line='blue';
 end
 if(strcmp(type,'last'))
     set(handles.lastTrialOdorText,'String',sprintf('#%d/%s      Val=%d; Valve=%d',current_trial,odors.name{trial_info.odor_identity(current_trial,current_block_id),current_block_id},odors.valence(trial_info.odor_identity(current_trial,current_block_id),current_block_id),odors.valve(trial_info.odor_identity(current_trial,current_block_id),current_block_id)));
@@ -322,6 +337,7 @@ if(sum(size(licksData))>0)
             %ylim([0 10]);
         end
         last_update=toc(tStart);
+        drawnow limitrate
     end
 else
     axes(id_plot);
@@ -329,7 +345,6 @@ else
     xlim([0 4]);
     %ylim([0 10]);
 end
-drawnow
 
 function score=scoreTrial(licksData,timeWindow,valence_trial)
 % Hit = 1, Miss = 2, False Alarm = 3, Correct Rejection = 4
@@ -388,7 +403,7 @@ function pauseButton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of pauseButton
 global running_state, global s;
 running_state=2;
-fwrite(s,'P');
+fprintf(s,'P');
 set(handles.resumeButton,'Visible','on');
 set(handles.resumeButton,'Enable','on');
 set(handles.pauseButton','Visible','off');
@@ -404,7 +419,7 @@ function stopButton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of stopButton
 global running_state, global s;
 running_state=0;
-fwrite(s,'S');
+fprintf(s,'S');
 
 set(handles.stopButton,'Enable','off');
 set(handles.startButton,'Enable','on');

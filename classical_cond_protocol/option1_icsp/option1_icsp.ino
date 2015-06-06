@@ -69,6 +69,9 @@ void loop() {
           Serial.println(randomITI[t]);
         }
         break;
+      case 'F':
+        flushOlfacto();
+        break;
       case 'R':
         deliverWaterReward(reward_solenoid_length);
         break;

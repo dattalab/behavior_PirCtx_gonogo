@@ -1,3 +1,4 @@
+%nb_blocks=4;
 nb_blocks=length(block_param.nb_trials);
 nb_trials_per_block=block_param.nb_trials(1);
 %nb_trials_per_block=19;

@@ -1,10 +1,11 @@
 // -- Import required libraries
 #include <Bridge.h>
 #include "wiring.h"
+#include <Console.h>
 
 // parameters of TTL & flow
 const int pulse_length = 100;
-int reward_solenoid_length=8;
+const int reward_solenoid_length=8;
 const int punishment_airpuff_duration=500;
 
 // These variables are used to know what program to launch & when
@@ -20,9 +21,10 @@ Process get_conf;
 
 void setup(){ // initialization
   initializePinStatus();
-  Serial.begin(115200);
-  
   Bridge.begin();
+  
+  Console.begin();
+  Console.noBuffer();
   
   initializeOlfacto();
   
@@ -33,7 +35,7 @@ void setup(){ // initialization
   pRunningState=&running_state;
   
   // start Serial communication with computer
-  writeOut((String) millis() + F(",CONOK,1"));
+  Console.println((String) millis() + F(",CONOK,1"));
 
 }
 
@@ -58,10 +60,6 @@ void processCommand(String command){
       id_config=getValue(command,',',1);
       id_step=getValue(command,',',2);
       break;
-    case 'L':
-      reward_solenoid_length=getValue(command,',',1).toInt();
-      writeOut((String) F("// Solenoid reward opening time set to ") + reward_solenoid_length + F(" ms."));
-      break;
     case 'R':
       deliverWaterReward(reward_solenoid_length);
       break;
@@ -79,12 +77,12 @@ void processCommand(String command){
       stimulusOlfacto(2);
       break;
     case 'X':
-        writeOut(F("// Loading configuration in the Bridge..."));
+        Console.println(F("// Loading configuration in the Bridge..."));
         get_conf.begin(F("/mnt/sda1/arduino/www/catch_param_uno2.py"));
         get_conf.addParameter(id_config);
         get_conf.addParameter(id_step);
         get_conf.run();
-        writeOut(F("// Configuration loaded in the Bridge."));
+        Console.println(F("// Configuration loaded in the Bridge."));
       break;
     case 'Z':
       current_go=1;
@@ -94,8 +92,8 @@ void processCommand(String command){
 void loop() {
   // This is the main entrance, it actually waits for Serial input to know what program to start and when
   checkFeedbackOlfacto();
-  while(Serial.available()){
-    char c=Serial.read();
+  while(Console.available()){
+    char c=Console.read();
     if(c == '\n'){
        processCommand(last_command);
        last_command="";
@@ -119,7 +117,7 @@ void loop() {
           break;
         }
         else{
-          writeOut(F("// FATAL ERROR: Undefined configuration."));
+          Console.println(F("// FATAL ERROR: Undefined configuration."));
         }
     }
   }

@@ -2,7 +2,7 @@
 
 void startSessionCfg(String id_config, String id_step) {
   // put your main code here, to run repeatedly:
-  Serial.println((String) F("// Loading configuration: ") + id_config + " " + id_step);
+  Console.println((String) F("// Loading configuration: ") + id_config + " " + id_step);
   get_conf.begin(F("/mnt/sda1/arduino/www/catch_param_uno2.py"));
   get_conf.addParameter(id_config);
   get_conf.addParameter(id_step);
@@ -40,8 +40,8 @@ void startSessionCfg(String id_config, String id_step) {
   }
   int nb_blocks = settings[1];
   int nb_trials_per_block = settings[2];
-  Serial.println((String) millis() + F(",CONOK,1"));
-  Serial.println((String) F("// ") + millis() + F(",OPTION,1,PHASE,2"));
+  Console.println((String) millis() + F(",CONOK,1"));
+  Console.println((String) F("// ") + millis() + F(",OPTION,1,PHASE,2"));
 
   for (int block_id = 1; block_id < (nb_blocks + 1); block_id++) {
     int order[nb_stimuli * nb_trials_per_block];
@@ -59,5 +59,5 @@ void startSessionCfg(String id_config, String id_step) {
       block_id = nb_blocks + 1;
     }
   }
-  Serial.println(F("KILL"));
+  Console.println(F("KILL"));
 }

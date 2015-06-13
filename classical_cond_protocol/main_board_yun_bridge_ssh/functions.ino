@@ -18,16 +18,6 @@ int length_char(const char* chars) {
   return count;
 }
 
-void writeOut(String line){
-  Serial.println(line);
-  Serial.flush();
-}
-
-void writeOut(char line[]){
-  Serial.println(line);
-  Serial.flush();
-}
-
  String getValue(String data, char separator, int index)
 {
   int found = 0;
@@ -67,20 +57,20 @@ void checkPauseResume(){
   int entry=1; // it has to run at least once
   
   while((*pRunningState == 0) || (entry == 1)){ // if execution is paused or for the first time
-    if(Serial.available()){
-      char rChar=Serial.read();
+    if(Console.available()){
+      char rChar=Console.read();
       switch(rChar){
         case 'P':
           *pRunningState=0;
-          writeOut(fstringF(F("//%i,PAUSED"),millis()));
+          Console.println((String) F("// ") + millis() + F(", PAUSED"));
           break;
         case 'R':
           *pRunningState=1;
-          writeOut(fstringF(F("//%i,RESUMED"),millis()));
+          Console.println((String) F("// ") + millis() + F(", RESUMED"));
           break;
         case 'S':
           *pRunningState=2;
-          writeOut(fstringF(F("//%i,STOPPED"),millis()));
+          Console.println((String) F("// ") + millis() + F(", STOPPED"));
           break;
       }
     }
@@ -98,12 +88,5 @@ void randITI(int *pRandomizedITI, int nb_trials, float lambda, float mean, int m
     if(pRandomizedITI[t] > max_ITI*1000){
       pRandomizedITI[t]=max_ITI*1000;
     }
-  }
-}
-
-void checkSerial(){
-  while(!Serial){
-    Serial.begin(115200);
-    delay(1);
   }
 }

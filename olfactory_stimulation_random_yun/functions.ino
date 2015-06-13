@@ -1,16 +1,10 @@
 // This function opens the solenoid for the specified duration (int, ms)
-void deliverWaterReward(int duration_water_reward){
-  digitalWrite(solenoidOutPin,HIGH);
-  delay(duration_water_reward);
-  digitalWrite(solenoidOutPin,LOW);
-}
 
-int length_array(const char** array) {
+int length_chararray(const char** array) {
   int count = 0;
   while(array[count]) count++;
   return count;
 }
-
 
 int length_char(const char* chars) {
   int count = 0;
@@ -19,11 +13,6 @@ int length_char(const char* chars) {
 }
 
 void writeOut(String line){
-  Serial.println(line);
-  Serial.flush();
-}
-
-void writeOut(char line[]){
   Serial.println(line);
   Serial.flush();
 }

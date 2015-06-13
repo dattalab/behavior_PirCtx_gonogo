@@ -11,7 +11,6 @@ void sendCommandToOlfacto(String myCmd){
     olfacto.write(myCmd[i]);
   }
   olfacto.write('\n');
-  olfacto.flush();
 }
 
 // To idle the olfactometer, we send "I,0"
@@ -27,11 +26,11 @@ void stimulusOlfacto(int v){
 void updateFlowOlfacto(int mfc, int rate){
   switch(mfc){
     case 0:
-      sendCommandToOlfacto(fstringF(F("FCS,%i"),rate));
+      sendCommandToOlfacto((String) F("FCS,") + rate);
       lastRequestedFlows[0]=rate;
     break;
     case 1:
-      sendCommandToOlfacto(fstringF(F("FOS,%i"),rate));
+      sendCommandToOlfacto((String) F("FOS,") + rate);
       lastRequestedFlows[1]=rate;
     break;
   }
@@ -41,7 +40,7 @@ void checkFeedbackOlfacto(){
   while(olfacto.available() > 0){
     char c = char(olfacto.read());
     if(c == '\n'){
-      writeOut((String) "//" + millis() + "," + bufferReadOlfacto);
+      Console.println((String) F("//") + millis() + "," + bufferReadOlfacto);
       bufferReadOlfacto="";
     }
     else if(c != '\r'){
@@ -52,5 +51,5 @@ void checkFeedbackOlfacto(){
 
 // To set trial duration, we send "D/X" where X is the duration of the stimulus (ms)
 void setDurationOlfacto (int duration){
-  sendCommandToOlfacto(fstringF(F("D,%i"),duration));
+  sendCommandToOlfacto((String) F("D,") + duration);
 }

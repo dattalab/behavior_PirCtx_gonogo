@@ -8,7 +8,7 @@ function varargout = gui_getlines(varargin)
 %
 %      GUI_GETLINES('CALLBACK',hObject,eventData,handles,...) calls the local
 %      function named CALLBACK in GUI_GETLINES.M with the given input arguments.
-%
+%in
 %      GUI_GETLINES('Property','Value',...) creates a new GUI_GETLINES or raises the
 %      existing singleton*.  Starting from thse left, property value pairs are
 %      applied to the GUI before gui_getlines_OpeningFcn gets called.  An
@@ -80,9 +80,10 @@ function varargout = gui_getlines_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 function []=do_acquisition(handles)
-global last_update, global tStart, global running_state, global s;
+global last_update, global tStart, global running_state, global s, global last_line_time;
 tStart=tic;
 last_update=toc(tStart);
+last_line_time=toc(tStart);
 
 delete(instrfindall);
 
@@ -154,12 +155,13 @@ while(running_state > 0)
     if(strcmp(last_line,'KILL'))
         running_state=0;
     elseif(s.BytesAvailable > 0)
+        last_line_time=toc(tStart);
         last_line_n=fgetl(s);
         %last_line_n=fgets(logfile);
         last_line=last_line_n(1:end-1);
-        if(strcmp(last_line(1:4),'KILL'))
-            running_state=0;
-        elseif(~strcmp(last_line(1),'/') && logmode_only == 0)
+        if((length(last_line) >= 4) && (strcmp(last_line(1:4),'KILL')))
+                running_state=0;
+        elseif((length(last_line) >= 1) && (~strcmp(last_line(1),'/') && logmode_only == 0))
             fwrite(logfile,sprintf('%s\n',last_line));
             split_last_line=strsplit(last_line,',');
             if(strcmp(split_last_line{2},'CONOK'))
@@ -263,8 +265,17 @@ while(running_state > 0)
                 dualfprintf(treatlogfile,'>> Unexpected syntax: %s\n',last_line);
             end
         else
-            disp(last_line);
+            dualfprintf(treatlogfile,sprintf('%s\n',last_line));
+            drawnow limitrate
         end
+    elseif((toc(tStart) - last_line_time > 1) && (~strcmp(s.DataTerminalReady,'on')))
+        keySet =   {'devid','port'};
+        valueSet = {'v9959F7C5C12BE84',list_ports.AvailableSerialPorts{port_id,1}};
+        mapObj = containers.Map(keySet,valueSet);
+        res = HTTPGet('http://api.pushingbox.com/pushingbox', mapObj);
+        fclose(s);
+        fopen(s);
+        disp('Trying to resolve serial connection problem');
     end
 end
 
@@ -283,6 +294,7 @@ if(size(past_trials) ~= size(score_trials))
 end
 
 delete(instrfindall);
+
 fclose(logfile);
 fclose(treatlogfile);
 
@@ -291,12 +303,6 @@ keySet =   {'devid','port'};
 valueSet = {'vEC15AA83D25910B',list_ports.AvailableSerialPorts(port_id)};  
 mapObj = containers.Map(keySet,valueSet) ;
 res = HTTPGet('http://api.pushingbox.com/pushingbox', mapObj); 
-
-
-keySet =   {'devid','port'};  
-valueSet = {'vEC15AA83D25910B',list_ports.AvailableSerialPorts{port_id,1}};  
-mapObj = containers.Map(keySet,valueSet);
-res = HTTPGet('http://api.pushingbox.com/pushingbox', mapObj);
 
 function []=updatePerformancePlot(data,handles)
 axes(handles.blockPerformancePlot);

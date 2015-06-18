@@ -14,7 +14,7 @@ String getStringBridge(char* key) {
   return toReturn;
 }
 
-char* fstringF(const __FlashStringHelper *fmt, ... ){
+char* fstringF(const __FlashStringHelper *fmt, ... ) {
   char buf[128]; // resulting string limited to 128 chars
   va_list args;
   va_start (args, fmt);
@@ -27,7 +27,7 @@ char* fstringF(const __FlashStringHelper *fmt, ... ){
   return buf;
 }
 
-char* fstring(const __FlashStringHelper *fmt, ... ){
+char* fstring(const __FlashStringHelper *fmt, ... ) {
   char buf[128]; // resulting string limited to 128 chars
   va_list args;
   va_start (args, fmt);

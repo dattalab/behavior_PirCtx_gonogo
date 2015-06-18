@@ -19,9 +19,9 @@ void p1_tube_training() {
 
   idleOlfacto();
 
-  writeOut(fstringF(F("//%i,PHASE,1"),millis()));
-  writeOut(fstringF(F("//%i,TLIP,%i,%i"),millis(),lickportphase_successful_required,lickportphase_consecutive_hits));
-  writeOut(fstringF(F("//%i,TLID,%i,%i"),millis(),lickportphase_delay,lickportphase_timeout));
+  writeOut(fstringF(F("//%lu,PHASE,1"),millis()));
+  writeOut(fstringF(F("//%lu,TLIP,%i,%i"),millis(),lickportphase_successful_required,lickportphase_consecutive_hits));
+  writeOut(fstringF(F("//%lu,TLID,%i,%i"),millis(),lickportphase_delay,lickportphase_timeout));
 
   while (nb_successful_trials < lickportphase_successful_required) {
     digitalWrite(LED1OutPin, HIGH);
@@ -35,14 +35,14 @@ void p1_tube_training() {
     lastLickState = 0;
     countLicks = 0;
     time_last_reward = 0;
-    writeOut(fstringF(F("%i,TLB,%i"),millis(),current_block));
+    writeOut(fstringF(F("%lu,TLB,%i"),millis(),current_block));
     while ((nb_consecutive_successful_trials < lickportphase_consecutive_hits) && (nb_successful_trials < lickportphase_successful_required)) {
       lickState = digitalRead(lickInPin);
       if (lickState != lastLickState) {
         if (lickState == HIGH) {
           countLicks++;
           start_count_time = millis();
-          writeOut(fstringF(F("%i,L,%i,%i,%i,1"),millis(),current_block,nb_successful_trials,countLicks));
+          writeOut(fstringF(F("%lu,L,%i,%i,%i,1"),millis(),current_block,nb_successful_trials,countLicks));
           if (millis() > (time_last_reward + lickportphase_minimum_reward_interval)) {
             nb_consecutive_successful_trials++;
             nb_successful_trials++;
@@ -50,16 +50,16 @@ void p1_tube_training() {
             digitalWrite(solenoidOutPin, HIGH);
             delay(reward_solenoid_length);
             digitalWrite(solenoidOutPin, LOW);
-            writeOut(fstringF(F("%i,US,0,%i,1,1"),millis(),nb_successful_trials));
+            writeOut(fstringF(F("%lu,US,0,%i,1,1"),millis(),nb_successful_trials));
           }
         }
         else {
-          writeOut(fstringF(F("%i,L,%i,%i,%i,0"),millis(),current_block,nb_successful_trials,countLicks));
+          writeOut(fstringF(F("%lu,L,%i,%i,%i,0"),millis(),current_block,nb_successful_trials,countLicks));
         }
         lastLickState = lickState;
       }
       if (millis() > (start_count_time + lickportphase_timeout)) {
-        writeOut(fstringF(F("%i,TIMEOUT,1"),millis()));
+        writeOut(fstringF(F("%lu,TIMEOUT,1"),millis()));
         digitalWrite(LED2OutPin, HIGH);
         while (digitalRead(buttonInPin) != HIGH) {};
         digitalWrite(LED2OutPin, LOW);
@@ -68,7 +68,7 @@ void p1_tube_training() {
         digitalWrite(solenoidOutPin, HIGH);
         delay(reward_solenoid_length);
         digitalWrite(solenoidOutPin, LOW);
-        writeOut(fstringF(F("%i,US,0,0,1,1"),millis()));
+        writeOut(fstringF(F("%lu,US,0,0,1,1"),millis()));
         lastLickState = 0;
       }
       checkPauseResume();

@@ -78,6 +78,22 @@ void processCommand(String command){
       updateFlowOlfacto(1,100);
       stimulusOlfacto(2);
       break;
+    case 'V': // load odors into streams
+      writeOut(F("// Loading odors into streams (5 s pulses each)"));
+      idleOlfacto();
+      updateFlowOlfacto(0,800);
+      updateFlowOlfacto(1,200);
+      setDurationOlfacto(5000);
+      delay(5000);
+      for(int v=2; v < 17; v++){
+        writeOut((String) F("// Valve ") + v);
+        stimulusOlfacto(v);
+        delay(7000);
+        checkFeedbackOlfacto();
+      }
+      writeOut(F("// Done loading odors into streams"));
+      setDurationOlfacto(1000);
+      break;
     case 'X':
         writeOut(F("// Loading configuration in the Bridge..."));
         get_conf.begin(F("/mnt/sda1/arduino/www/catch_param_uno2.py"));

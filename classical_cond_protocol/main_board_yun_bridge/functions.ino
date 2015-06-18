@@ -72,15 +72,15 @@ void checkPauseResume(){
       switch(rChar){
         case 'P':
           *pRunningState=0;
-          writeOut(fstringF(F("//%i,PAUSED"),millis()));
+          writeOut(fstringF(F("//%lu,PAUSED"),millis()));
           break;
         case 'R':
           *pRunningState=1;
-          writeOut(fstringF(F("//%i,RESUMED"),millis()));
+          writeOut(fstringF(F("//%lu,RESUMED"),millis()));
           break;
         case 'S':
           *pRunningState=2;
-          writeOut(fstringF(F("//%i,STOPPED"),millis()));
+          writeOut(fstringF(F("//%lu,STOPPED"),millis()));
           break;
       }
     }

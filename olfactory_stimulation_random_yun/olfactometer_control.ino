@@ -4,10 +4,10 @@ byte server[] = {192, 168, 20, 85};
 int port = 3336;
 
 void initializeOlfacto() {
-  byte connexion = 0;
-  while (connexion != 1) {
+  boolean connexion = false;
+  while (connexion != true) {
     connexion = client.connect(server, port);
-    if (connexion == 1) {
+    if (connexion == true) {
       writeOut((String) F("// Connected!"));
     }
     else {
@@ -19,19 +19,14 @@ void initializeOlfacto() {
 
 // This is the function used to send a command to the olfactometer
 void sendCommandToOlfacto(String myCmd) {
-  for (int i = 0; i < (myCmd.length() + 1); i++) {
-    client.write(myCmd[i]);
-  }
-  client.write('\n');
+  client.println(myCmd);
   client.flush();
 }
 
 void idleOlfacto() {
-  for (int i = 0; i < carriers_nb; i++) {
-    updateFlowOlfacto(0, carriers[i], default_carrierRate);
-  }
+  updateFlowOlfacto(0, default_carrierRate);
+  updateFlowOlfacto(1, default_odorRate);
   for (int i = 0; i < bankflows_nb; i++) {
-    updateFlowOlfacto(1, bankflows[i], default_odorRate);
     blankBank(i);
   }
 }
@@ -58,13 +53,28 @@ void blankBank(int bank) {
   sendCommandToOlfacto((String) F("write Bank") + bank + F("_Valves 0"));
 }
 
-void updateFlowOlfacto(int type, int id, int flow) {
+void setFlowOlfacto(int type, int id, int flow) {
   switch (type) {
     case 0: // carrier
       sendCommandToOlfacto((String) F("write Carrier") + id + F("_Actuator ") + flow);
       break;
     case 1:
       sendCommandToOlfacto((String) F("write BankFlow") + id + F("_Actuator ") + flow);
+      break;
+  }
+}
+
+void updateFlowOlfacto(int type, int flow) {
+  switch (type) {
+    case 0: // carrier
+      for (int i = 0; i < carriers_nb; i++) {
+        setFlowOlfacto(0, carriers[i], (int) floor(flow / 2));
+      }
+      break;
+    case 1:
+      for (int i = 0; i < bankflows_nb; i++) {
+        setFlowOlfacto(1, bankflows[i], (int) floor(flow / 2));
+      }
       break;
   }
 }

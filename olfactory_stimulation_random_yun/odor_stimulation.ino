@@ -45,11 +45,11 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
   // # Block initiation parameters
   // time,BIP,block_ID,nb_trials,nb_odors
   //writeOut((String) millis() + F(",BIP,") + String(current_block) + F(",") + String(nb_trials) + F(",") + String(nb_odors));
-  writeOut(fstringF(F("%i,BIP,%i,%i,%i"), millis(), current_block, nb_trials, nb_odors));
+  writeOut(fstringF(F("%lu,BIP,%i,%i,%i"), millis(), current_block, nb_trials, nb_odors));
 
   // # Block initiation duration
   // time,BID,block_id,odor_sampling,wait_time,outcome,ISI
-  writeOut(fstringF(F("%i,BID,%i,%i"), millis(), current_block, duration_odor_sampling, duration_interstimulus_interval));
+  writeOut(fstringF(F("%lu,BID,%i,%i"), millis(), current_block, duration_odor_sampling, duration_interstimulus_interval));
 
   // # Block initiation odor list
   // For each odor:
@@ -57,7 +57,7 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
   for (int i = 0; i < nb_odors; i++) {
     char name_odor[30];
     odor_name[i].toCharArray(name_odor, 30);
-    writeOut(fstringF(F("%i,BIO,%i,%i,%s,%i"), millis(), current_block, i + 1, name_odor, odors[i]));
+    writeOut((String) millis() + F(",BIO,") + current_block + F(",") + (i + 1) + F(",") + odor_name[i] + F(",") + odors[i]);
   }
 
   sendTriggerTTL();
@@ -67,21 +67,17 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
     checkSerial();
     // Check air flows
     if (lastRequestedFlows[0] != carrier_flows[block_order[trial_id - 1]]) {
-      for (int i = 0; i < carriers_nb; i++) {
-        updateFlowOlfacto(0, carriers[i], carrier_flows[block_order[trial_id - 1]]);
-      }
+      updateFlowOlfacto(0, carrier_flows[block_order[trial_id - 1]]);
     }
     if (lastRequestedFlows[1] != odor_flows[block_order[trial_id - 1]]) {
-      for (int i = 0; i < bankflows_nb; i++) {
-        updateFlowOlfacto(1, bankflows[i], odor_flows[block_order[trial_id - 1]]);
-      }
+      updateFlowOlfacto(1, odor_flows[block_order[trial_id - 1]]);
     }
-    writeOut(fstringF(F("//%i,ITI,%i,%i,%i"), millis(), current_block, trial_id, duration_ITI[trial_id - 1]));
+    writeOut(fstringF(F("//%lu,ITI,%i,%i,%i"), millis(), current_block, trial_id, duration_ITI[trial_id - 1]));
     delay(duration_ITI[trial_id - 1]);
 
     // Send a command to log trial initiation
     // time,O,block_id,trial_id,valve_identity
-    writeOut(fstringF(F("%i,O,%i,%i,%i"), millis(), current_block, trial_id, block_order[trial_id - 1] + 1));
+    writeOut(fstringF(F("%lu,O,%i,%i,%i"), millis(), current_block, trial_id, block_order[trial_id - 1] + 1));
 
     // we need to initialize a few variables
     unsigned long start_count_time = millis();

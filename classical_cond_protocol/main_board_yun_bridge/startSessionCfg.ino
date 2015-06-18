@@ -10,7 +10,7 @@ void startSessionCfg(String id_config, String id_step) {
   int nb_stimuli=getIntBridge("nb_stimuli");
   int settings[3];
   int default_flows[2];
-  int duration_scheme[6];
+  int duration_scheme[7];
   String odor_name[nb_stimuli];
   int carrier_flows[nb_stimuli];
   int odor_flows[nb_stimuli];
@@ -23,6 +23,12 @@ void startSessionCfg(String id_config, String id_step) {
   }
   for (int a = 0; a < 6; a++) {
     duration_scheme[a] = getIntBridge(fstringF(F("duration_scheme/%i"), a));
+  }
+  if(settings[0] == 2){
+    duration_scheme[6]=getIntBridge("duration_scheme/6");
+  }
+  else{
+    duration_scheme[6]=0;
   }
   for (int a = 0; a < 2; a++) {
     default_flows[a] = getIntBridge(fstringF(F("default_flows/%i"), a));
@@ -46,23 +52,23 @@ void startSessionCfg(String id_config, String id_step) {
     nb_trials_per_block=nb_trials_per_block+nb_trials_per_odor[a];
   }
   int nb_blocks = settings[1];
-  writeOut(fstringF(F("%i,CONOK,1"),millis()));
-  writeOut(fstringF(F("//%i,OPTION,1,PHASE,2"),millis()));
+  writeOut(fstringF(F("%lu,CONOK,1"),millis()));
+  writeOut(fstringF(F("//%lu,OPTION,1,PHASE,2"),millis()));
 
   for (int block_id = 1; block_id < (nb_blocks + 1); block_id++) {
     int order[nb_trials_per_block];
     int i = 0;
-    for(int t=0; t < nb_trials_per_block; t++){
-      order[t]=t%2;
-    }
-//    for (int o = 0; o < nb_stimuli; o++) {
-//      for (int t = 0; t < nb_trials_per_odor[o]; t++) {
-//        order[i] = o;
-//        i++;
-//      }
+//    for(int t=0; t < nb_trials_per_block; t++){
+//      order[t]=t%nb_stimuli;
 //    }
-    //randomizeArray(order, nb_trials_per_block);
-    odor_stimulation(settings[0], block_id, nb_trials_per_block, order, duration_scheme[0], duration_scheme[1], duration_scheme[2], duration_scheme[3], duration_scheme[4], duration_scheme[5], nb_stimuli, valves, valences, odor_name, default_flows, carrier_flows, odor_flows);
+    for (int o = 0; o < nb_stimuli; o++) {
+      for (int t = 0; t < nb_trials_per_odor[o]; t++) {
+        order[i] = o;
+        i++;
+      }
+    }
+    randomizeArray(order, nb_trials_per_block);
+    odor_stimulation(settings[0], block_id, nb_trials_per_block, order, duration_scheme[0], duration_scheme[1], duration_scheme[2], duration_scheme[3], duration_scheme[4], duration_scheme[5], duration_scheme[6], nb_stimuli, valves, valences, odor_name, default_flows, carrier_flows, odor_flows);
     checkPauseResume();
     if (*pRunningState == 2) {
       block_id = nb_blocks + 1;

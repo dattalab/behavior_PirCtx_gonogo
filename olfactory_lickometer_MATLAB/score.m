@@ -1,5 +1,5 @@
 nb_blocks=length(block_param.nb_trials);
-%nb_blocks=1;
+%nb_blocks=8;
 nb_trials_per_block=block_param.nb_trials(1);
 %nb_trials_per_block=19;
 nb_odors=size(odors.valence,1);
@@ -68,7 +68,7 @@ for b=1:nb_blocks
     mean_nb_licking(:,b)=[nanmean(nb_licks(((scorer(:,b) == 1) | (scorer(:,b) == 2)),b)) nanmean(nb_licks(((scorer(:,b) == 3) | (scorer(:,b) == 3)),b))];
     for o=1:nb_odors
         scorer_odor=(trial_info.odor_identity(1:nb_trials_per_block,b) == o).*scorer(1:nb_trials_per_block,b);
-        correct_score_odors(o,b)=(sum(scorer_odor == 1)+sum(scorer_odor == 4))/sum(scorer_odor~=0);
+           correct_score_odors(o,b)=(sum(scorer_odor == 1)+sum(scorer_odor == 4))/sum(scorer_odor~=0);
         resume_score_odors(:,o,b)=[sum(scorer_odor == 1) sum(scorer_odor == 2) sum(scorer_odor == 3) sum(scorer_odor == 4)];
         mean_licking_odors(:,o,b)=[nansum(duration_licks(((scorer_odor == 1) | (scorer_odor == 2)),b))/sum(scorer_odor~=0) nansum(duration_licks(((scorer_odor == 3) | (scorer_odor == 3)),b))/sum(scorer_odor~=0)];
         mean_nb_licking_odors(:,o,b)=[nanmean(nb_licks(((scorer_odor == 1) | (scorer_odor == 2)),b)) nanmean(nb_licks(((scorer_odor == 3) | (scorer_odor == 3)),b))];
@@ -104,3 +104,6 @@ for o=1:nb_odors
     
     hgexport(gcf,strcat('session_performance_',odors.name{o,1},'.png'),hgexport('readstyle','docs'),'Format','png');
 end
+
+clear all
+clc

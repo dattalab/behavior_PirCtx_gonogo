@@ -27,11 +27,11 @@ function varargout = gui_getlines(varargin)
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @gui_getlines_OpeningFcn, ...
-                   'gui_OutputFcn',  @gui_getlines_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @gui_getlines_OpeningFcn, ...
+    'gui_OutputFcn',  @gui_getlines_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -70,7 +70,7 @@ guidata(hObject, handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = gui_getlines_OutputFcn(hObject, eventdata, handles) 
+function varargout = gui_getlines_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -134,6 +134,8 @@ lick_events_raw={};
 lick_events={};
 us_events_raw={};
 us_events={};
+iti_raw={};
+iti={};
 current_block_id=0;
 current_trial=0;
 running_state=1;
@@ -160,7 +162,7 @@ while(running_state > 0)
         %last_line_n=fgets(logfile);
         last_line=last_line_n(1:end-1);
         if((length(last_line) >= 4) && (strcmp(last_line(1:4),'KILL')))
-                running_state=0;
+            running_state=0;
         elseif((length(last_line) >= 1) && (~strcmp(last_line(1),'/') && logmode_only == 0))
             fwrite(logfile,sprintf('%s\n',last_line));
             split_last_line=strsplit(last_line,',');
@@ -226,13 +228,15 @@ while(running_state > 0)
                 lick_events{current_block_id,current_trial}=[];
                 us_events_raw{current_block_id,current_trial}=[];
                 us_events{current_block_id,current_trial}=[];
+                iti_raw{current_block_id,current_trial}=[];
+                iti{current_block_id,current_trial}=[];
                 dualfprintf(treatlogfile,'> Trial %d: %d/%s - T: %d\n',current_trial, trial_info.odor_identity(current_trial,current_block_id),odors.name{trial_info.odor_identity(current_trial,current_block_id),current_block_id},trial_info.start_time(current_trial,current_block_id));
                 set(handles.currentTrialOdorText,'String',sprintf('#%d/%s      Val=%d; Valve=%d',current_trial,odors.name{trial_info.odor_identity(current_trial,current_block_id),current_block_id},odors.valence(trial_info.odor_identity(current_trial,current_block_id),current_block_id),odors.valve(trial_info.odor_identity(current_trial,current_block_id),current_block_id)));
                 current_trial_lickingData=[];
                 past_trials=[past_trials; current_trial current_block_id];
                 last_update=0;
                 updateTrialPlot('current',current_trial_lickingData,current_trial,current_block_id,trial_info,odors,handles);
-                save(savefile_data,'block_param','lick_events','lick_events_raw','odors','trial_info','score_trials','performance_hitrate','us_events_raw','us_events');
+                save(savefile_data,'block_param','lick_events','lick_events_raw','odors','trial_info','score_trials','performance_hitrate','us_events_raw','us_events','iti_raw','iti');
             elseif(strcmp(split_last_line{2},'L'))
                 lick_trial=str2num(split_last_line{4});
                 lick_id=str2num(split_last_line{5});
@@ -261,6 +265,14 @@ while(running_state > 0)
                     us_events_raw{us_trial,current_block_id}(1,1:2)=[us_time_raw us_outcome_code];
                     us_events{us_trial,current_block_id}(1,1:2)=[us_time us_outcome_code];
                 end
+                dualfprintf(treatlogfile,'Reward delivered - T: %d\n',us_time);
+            elseif(strcmp(split_last_line{2},'ITI'))
+                iti_trial=str2num(split_last_line{4});
+                iti_duration=str2num(split_last_line{5});
+                iti_time_raw=str2num(split_last_line{1});
+                iti_raw{iti_trial,current_block_id}(1,1:2)=[iti_time_raw iti_duration];
+                iti{iti_trial,current_block_id}(1,1:2)=[iti_duration];
+                dualfprintf(treatlogfile,'ITI duration: %d - T: %d\n',iti_duration,iti_time_raw);
             else
                 dualfprintf(treatlogfile,'>> Unexpected syntax: %s\n',last_line);
             end
@@ -279,7 +291,7 @@ while(running_state > 0)
     end
 end
 
-save(savefile_data,'block_param','lick_events','lick_events_raw','odors','trial_info','score_trials','performance_hitrate','us_events_raw','us_events');
+save(savefile_data,'block_param','lick_events','lick_events_raw','odors','trial_info','score_trials','performance_hitrate','us_events_raw','us_events','iti_raw','iti');
 
 
 fclose(s);
@@ -299,10 +311,10 @@ fclose(logfile);
 fclose(treatlogfile);
 
 set(handles.startButton,'Enable','on');
-keySet =   {'devid','port'};  
-valueSet = {'vEC15AA83D25910B',list_ports.AvailableSerialPorts(port_id)};  
+keySet =   {'devid','port'};
+valueSet = {'vEC15AA83D25910B',list_ports.AvailableSerialPorts(port_id)};
 mapObj = containers.Map(keySet,valueSet) ;
-res = HTTPGet('http://api.pushingbox.com/pushingbox', mapObj); 
+res = HTTPGet('http://api.pushingbox.com/pushingbox', mapObj);
 
 function []=updatePerformancePlot(data,handles)
 axes(handles.blockPerformancePlot);
@@ -319,7 +331,7 @@ switch(odors.valence(trial_info.odor_identity(current_trial,current_block_id),cu
         color_line='green';
     case 2
         color_line='red';
-    default
+        default
         color_line='blue';
 end
 if(strcmp(type,'last'))
@@ -350,6 +362,7 @@ else
     stairs(0,0,color_line);
     xlim([0 4]);
     %ylim([0 10]);
+    drawnow limitrate
 end
 
 function score=scoreTrial(licksData,timeWindow,valence_trial)
@@ -372,7 +385,7 @@ else
         score=4;
     end
 end
-        
+
 
 % --- Executes on button press in startButton.
 function startButton_Callback(hObject, eventdata, handles)

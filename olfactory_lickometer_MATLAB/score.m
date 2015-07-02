@@ -1,5 +1,5 @@
 nb_blocks=length(block_param.nb_trials);
-%nb_blocks=8;
+%nb_blocks=3;
 nb_trials_per_block=block_param.nb_trials(1);
 %nb_trials_per_block=19;
 nb_odors=size(odors.valence,1);

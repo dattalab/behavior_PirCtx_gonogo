@@ -51,29 +51,29 @@ void randomizeArray(int *parray, int nb_elements) {
 // It reads what's in the incoming Serial data
 // Codes:
 // P: pause, R: resume, S: stop
-void checkPauseResume() {
-  int *pRunningState = &running_state;
-  int entry = 1; // it has to run at least once
-
-  while ((*pRunningState == 0) || (entry == 1)) { // if execution is paused or for the first time
-    if (Serial.available()) {
-      char rChar = Serial.read();
-      switch (rChar) {
+void checkPauseResume(){
+  int *pRunningState=&running_state;
+  int entry=1; // it has to run at least once
+  
+  while((*pRunningState == 0) || (entry == 1)){ // if execution is paused or for the first time
+    if(Serial.available()){
+      char rChar=Serial.read();
+      switch(rChar){
         case 'P':
-          *pRunningState = 0;
-          writeOut(fstringF(F("//%lu,PAUSED"), millis()));
+          *pRunningState=0;
+          writeOut(fstringF(F("//%lu,PAUSED"),millis()));
           break;
         case 'R':
-          *pRunningState = 1;
-          writeOut(fstringF(F("//%lu,RESUMED"), millis()));
+          *pRunningState=1;
+          writeOut(fstringF(F("//%lu,RESUMED"),millis()));
           break;
         case 'S':
-          *pRunningState = 2;
-          writeOut(fstringF(F("//%lu,STOPPED"), millis()));
+          *pRunningState=2;
+          writeOut(fstringF(F("//%lu,STOPPED"),millis()));
           break;
       }
     }
-    entry = 0;
+    entry=0;
   }
 }
 

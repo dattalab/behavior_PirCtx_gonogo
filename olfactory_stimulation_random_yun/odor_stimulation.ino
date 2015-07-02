@@ -91,7 +91,7 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
 
     // Running status management
     checkPauseResume();
-    if (*pRunningState == 2) {
+    if (running_state == 2) {
       trial_id = nb_trials + 1;
     }
   }

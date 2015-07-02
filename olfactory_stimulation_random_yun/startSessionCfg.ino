@@ -68,7 +68,7 @@ void startSessionCfg(String id_config, String id_step) {
 
     odor_stimulation(settings[0], block_id, nb_trials_per_block, order, duration_scheme[0], duration_scheme[1], nb_stimuli, valves, odor_name, default_flows, carrier_flows, odor_flows);
     checkPauseResume();
-    if (*pRunningState == 2) {
+    if (running_state == 2) {
       block_id = nb_blocks + 1;
     }
   }

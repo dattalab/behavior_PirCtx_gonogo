@@ -45,8 +45,19 @@ String id_config = "";
 String id_step = "";
 
 void processCommand(String command) {
+  int new_flow;
   char cmd = getValue(command, ',', 0)[0];
   switch (cmd) {
+    case 'M':
+      new_flow=getValue(command, ',', 1).toInt();
+      updateFlowOlfacto(0, new_flow);
+      writeOut((String) "// Carrier flow updated to " + new_flow);
+      break;
+    case 'F':
+      new_flow=getValue(command, ',', 1).toInt();
+      updateFlowOlfacto(1, new_flow);
+      writeOut((String) "// Odor flow updated to " + new_flow);
+      break;
     case 'P':
       id_config = getValue(command, ',', 1);
       id_step = getValue(command, ',', 2);

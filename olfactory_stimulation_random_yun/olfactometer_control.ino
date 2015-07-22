@@ -35,8 +35,8 @@ void openValve(int valve) {
   if (valve < 16) {
     sendCommandToOlfacto((String) "write Bank" + bankflows[0] + F("_Valves ") + valve);
   }
-  else if (valve < 24) {
-    sendCommandToOlfacto((String) "write Bank" + bankflows[1] + F("_Valves ") + valve);
+  else if (valve < 23) {
+    sendCommandToOlfacto((String) "write Bank" + bankflows[1] + F("_Valves ") + (valve-15));
   }
 }
 
@@ -44,7 +44,7 @@ void closeValve(int valve) {
   if (valve < 16) {
     blankBank(bankflows[0]);
   }
-  else if (valve < 24) {
+  else if (valve < 23) {
     blankBank(bankflows[1]);
   }
 }

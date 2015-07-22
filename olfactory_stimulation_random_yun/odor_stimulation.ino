@@ -49,15 +49,15 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
 
   // # Block initiation duration
   // time,BID,block_id,odor_sampling,wait_time,outcome,ISI
-  writeOut(fstringF(F("%lu,BID,%i,%i"), millis(), current_block, duration_odor_sampling, duration_interstimulus_interval));
-
+  writeOut(fstringF(F("%lu,BID,%i,%i,0,0,0"), millis(), current_block, duration_odor_sampling, duration_interstimulus_interval));
+  writeOut(fstringF(F("%lu,BIW,%i,0,1"), millis(), current_block));
   // # Block initiation odor list
   // For each odor:
   // time,BIO,block_id,odor_id,odor_name,odor_valence,valve
   for (int i = 0; i < nb_odors; i++) {
     char name_odor[30];
     odor_name[i].toCharArray(name_odor, 30);
-    writeOut((String) millis() + F(",BIO,") + current_block + F(",") + (i + 1) + F(",") + odor_name[i] + F(",") + odors[i]);
+    writeOut((String) millis() + F(",BIO,") + current_block + F(",") + (i + 1) + F(",") + odor_name[i] + F(",0,") + odors[i]);
   }
 
   sendTriggerTTL();
@@ -72,7 +72,7 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
     if (lastRequestedFlows[1] != odor_flows[block_order[trial_id - 1]]) {
       updateFlowOlfacto(1, odor_flows[block_order[trial_id - 1]]);
     }
-    writeOut(fstringF(F("//%lu,ITI,%i,%i,%i"), millis(), current_block, trial_id, duration_ITI[trial_id - 1]));
+    writeOut((String) millis() + ",ITI," + current_block + "," + trial_id + "," + duration_ITI[trial_id - 1]);
     delay(duration_ITI[trial_id - 1]);
 
     // Send a command to log trial initiation

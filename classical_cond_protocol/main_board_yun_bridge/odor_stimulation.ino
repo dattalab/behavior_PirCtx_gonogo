@@ -185,7 +185,9 @@ void odor_stimulation(int mode, int current_block, int nb_trials, int block_orde
             }
             else if((outcome_code == 0) && (outcome_on == 0)){
               outcome_on=4;
-              duration_ITI[trial_id]=duration_ITI[trial_id]+step_punishment_isi;
+              if(trial_id < nb_trials){
+                duration_ITI[trial_id]=duration_ITI[trial_id]+step_punishment_isi;
+              }
             }
           }
           else { // if a lick just ended

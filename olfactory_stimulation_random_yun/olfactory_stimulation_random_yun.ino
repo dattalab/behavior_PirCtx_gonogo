@@ -2,8 +2,8 @@
 #include <YunClient.h>
 
 // Pin assignments
-byte trigger = 7;
-byte TTL = 6;
+int trigger = 7;
+int TTL = 6;
 int randomInPin = 8;
 
 // TTL parameters
@@ -46,15 +46,16 @@ String id_step = "";
 
 void processCommand(String command) {
   int new_flow;
+  int id_valve;
   char cmd = getValue(command, ',', 0)[0];
   switch (cmd) {
     case 'M':
-      new_flow=getValue(command, ',', 1).toInt();
+      new_flow = getValue(command, ',', 1).toInt();
       updateFlowOlfacto(0, new_flow);
       writeOut((String) "// Carrier flow updated to " + new_flow);
       break;
     case 'F':
-      new_flow=getValue(command, ',', 1).toInt();
+      new_flow = getValue(command, ',', 1).toInt();
       updateFlowOlfacto(1, new_flow);
       writeOut((String) "// Odor flow updated to " + new_flow);
       break;
@@ -63,9 +64,10 @@ void processCommand(String command) {
       id_step = getValue(command, ',', 2);
       break;
     case 'T':
-      openValve(2);
-      delay(1000);
-      closeValve(2);
+      id_valve = getValue(command, ',', 1).toInt();
+      openValve(id_valve);
+      delay(2000);
+      closeValve(id_valve);
       break;
     case 'X':
       writeOut(F("// Loading configuration in the Bridge..."));
@@ -74,6 +76,29 @@ void processCommand(String command) {
       get_conf.addParameter(id_step);
       get_conf.run();
       writeOut(F("// Configuration loaded in the Bridge."));
+      break;
+    case 'W':
+      updateFlowOlfacto(0, 2000);
+      updateFlowOlfacto(1, 2000);
+      writeOut(F("// Washing odor streams ..."));
+      while (true) {
+        for (int valve = 1; valve < 23; valve++) {
+          writeOut((String) F("// Valve ") + valve);
+          openValve(valve);
+          delay(5000);
+          closeValve(valve);
+        }
+      }
+      break;
+    case 'V':
+      writeOut(F("// Loading odor lines (5s pulses) ..."));
+      for (int valve = 1; valve < 23; valve++) {
+        writeOut((String) F("// Valve ") + valve);
+        openValve(valve);
+        delay(5000);
+        closeValve(valve);
+      }
+      writeOut(F("// Done loading odor lines"));
       break;
     case 'Z':
       current_go = 1;

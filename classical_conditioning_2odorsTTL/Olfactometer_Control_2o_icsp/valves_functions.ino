@@ -112,11 +112,11 @@ void changeMFCFlow(int type, float flow){
   switch(type){ // carrier
     case 1:
       CARRIER_FLOW_RATE=flow;
-      setMFCFlow(carrier_address,rCommand.param);
+      setMFCFlow(carrier_address,flow);
       break;
     case 2:
       ODOR_FLOW_RATE=flow;
-      setMFCFlow(odor_address,rCommand.param);
+      setMFCFlow(odor_address,flow);
       break;
   }
   

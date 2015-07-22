@@ -16,7 +16,6 @@ void sendCommandToMaster(struct olfactoFeedbackStruct myCmd){
   digitalWrite(SS, LOW);    // SS is pin 10
   SPI_writeAnything (myCmd);
   digitalWrite(SS, HIGH);
-  delay(15);
 }
 
 void sendFlowInfoToBoard(int param1, int param2, int param3){

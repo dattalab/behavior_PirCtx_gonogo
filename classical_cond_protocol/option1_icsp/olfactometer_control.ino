@@ -35,6 +35,13 @@ void idleOlfacto(){
   sendCommandToOlfacto(newCmd);
 }
 
+void flushOlfacto(){
+  commandStruct newCmd;
+  newCmd.cmd='W';
+  newCmd.param=1;
+  sendCommandToOlfacto(newCmd);
+}
+
 // To start a new trial, we send "T/X" where X is the number of the valve
 void stimulusOlfacto(int v){
   commandStruct newCmd;

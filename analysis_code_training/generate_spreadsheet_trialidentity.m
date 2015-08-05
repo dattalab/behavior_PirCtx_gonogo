@@ -33,6 +33,7 @@ for i=1:nb_datafiles
             all_odor_identity=horzcat(all_odor_identity,trial_info.odor_identity(:,b));
             all_odors{real_b,i}=odors;
         end
+    end
     clear odors trial_info
 end
 

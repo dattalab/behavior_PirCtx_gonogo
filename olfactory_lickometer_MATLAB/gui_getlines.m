@@ -164,7 +164,7 @@ while(running_state > 0)
         if((length(last_line) >= 4) && (strcmp(last_line(1:4),'KILL')))
             running_state=0;
         elseif((length(last_line) >= 1) && (~strcmp(last_line(1),'/') && logmode_only == 0))
-            fwrite(logfile,sprintf('%s\n',last_line));
+            fwrite(logfile,sprintf('%s\r\n',last_line));
             split_last_line=strsplit(last_line,',');
             if(strcmp(split_last_line{2},'CONOK'))
                 if(strcmp(split_last_line{3},'1'))
@@ -177,8 +177,8 @@ while(running_state > 0)
                 current_block_id=str2num(split_last_line{3});
                 block_param.nb_trials(current_block_id)=str2num(split_last_line{4});
                 block_param.nb_odors(current_block_id)=str2num(split_last_line{5});
-                dualfprintf(treatlogfile,'>>> BLOCK %d\n',current_block_id);
-                dualfprintf(treatlogfile,'>> Block initialization:\nNb of trials: %d / Nb of odors: %d\n',block_param.nb_trials(current_block_id),block_param.nb_odors(current_block_id));
+                dualfprintf(treatlogfile,'>>> BLOCK %d\r\n',current_block_id);
+                dualfprintf(treatlogfile,'>> Block initialization:\r\nNb of trials: %d / Nb of odors: %d\r\n',block_param.nb_trials(current_block_id),block_param.nb_odors(current_block_id));
                 progression.init_duration(current_block_id)=0;
                 progression.init_assessment_window(current_block_id)=0;
                 progression.init_odors(current_block_id)=0;
@@ -197,15 +197,15 @@ while(running_state > 0)
                 block_param.duration_wait(current_block_id)=str2num(split_last_line{5});
                 block_param.duration_outcome(current_block_id)=str2num(split_last_line{6});
                 block_param.duration_interstimulus(current_block_id)=str2num(split_last_line{7});
-                dualfprintf(treatlogfile,'>> Duration initialization:\nOdor sampling (%d ms) - Waiting time (%d ms) - Outcome (%d ms) - ISI (%d ms)\n',block_param.duration_odor_sampling(current_block_id),block_param.duration_wait(current_block_id),block_param.duration_outcome(current_block_id),block_param.duration_interstimulus(current_block_id));
+                dualfprintf(treatlogfile,'>> Duration initialization:\r\nOdor sampling (%d ms) - Waiting time (%d ms) - Outcome (%d ms) - ISI (%d ms)\r\n',block_param.duration_odor_sampling(current_block_id),block_param.duration_wait(current_block_id),block_param.duration_outcome(current_block_id),block_param.duration_interstimulus(current_block_id));
                 progression.init_duration(current_block_id)=1;
             elseif((strcmp(split_last_line{2},'BIO')) && (progression.init_odors(current_block_id) == 0))
                 odor_id=str2num(split_last_line{4});
                 odors.name{odor_id,current_block_id}=split_last_line{5};
                 odors.valence(odor_id,current_block_id)=str2num(split_last_line{6});
                 odors.valve(odor_id,current_block_id)=str2num(split_last_line{7});
-                dualfprintf(treatlogfile,'> Odor %d: %s // Val=%d; Valve=%d\n',odor_id,odors.name{odor_id,current_block_id},odors.valence(odor_id,current_block_id),odors.valve(odor_id,current_block_id));
-                if(sum(odors.valve(1:end,current_block_id) ~= 0) == block_param.nb_odors(current_block_id))
+                dualfprintf(treatlogfile,'> Odor %d: %s // Val=%d; Valve=%d\r\n',odor_id,odors.name{odor_id,current_block_id},odors.valence(odor_id,current_block_id),odors.valve(odor_id,current_block_id));
+                if(sum(~isnan(odors.valve(1:end,current_block_id))) == block_param.nb_odors(current_block_id))
                     progression.init_odors(current_block_id)=1;
                 end
                 current_odor_table(odor_id,:)={odors.name{odor_id,current_block_id},odors.valence(odor_id,current_block_id),odors.valve(odor_id,current_block_id)};
@@ -213,7 +213,7 @@ while(running_state > 0)
                 drawnow limitrate
             elseif(progression.init_duration(current_block_id) == 0 || progression.init_assessment_window(current_block_id) == 0 || progression.init_odors(current_block_id) == 0)
                 logmode_only=1;
-                dualfprintf(treatlogfile,'>> Could not acquire all the parameters before experiment starts. Starts in log-mode only.\n');
+                dualfprintf(treatlogfile,'>> Could not acquire all the parameters before experiment starts. Starts in log-mode only.\r\n');
             elseif(strcmp(split_last_line{2},'O'))
                 if(sum(size(past_trials)) ~= 0)
                     score_trials(past_trials(end,1),past_trials(end,2))=scoreTrial(current_trial_lickingData,[block_param.start_assessment_window(past_trials(end,2)) block_param.start_assessment_window(past_trials(end,2))+block_param.duration_assessment_window(past_trials(end,2))],odors.valence(trial_info.odor_identity(past_trials(end,1),past_trials(end,2)),past_trials(end,2)));
@@ -230,7 +230,7 @@ while(running_state > 0)
                 us_events{current_block_id,current_trial}=[];
                 iti_raw{current_block_id,current_trial}=[];
                 iti{current_block_id,current_trial}=[];
-                dualfprintf(treatlogfile,'> Trial %d: %d/%s - T: %d\n',current_trial, trial_info.odor_identity(current_trial,current_block_id),odors.name{trial_info.odor_identity(current_trial,current_block_id),current_block_id},trial_info.start_time(current_trial,current_block_id));
+                dualfprintf(treatlogfile,'> Trial %d: %d/%s - T: %d\r\n',current_trial, trial_info.odor_identity(current_trial,current_block_id),odors.name{trial_info.odor_identity(current_trial,current_block_id),current_block_id},trial_info.start_time(current_trial,current_block_id));
                 set(handles.currentTrialOdorText,'String',sprintf('#%d/%s      Val=%d; Valve=%d',current_trial,odors.name{trial_info.odor_identity(current_trial,current_block_id),current_block_id},odors.valence(trial_info.odor_identity(current_trial,current_block_id),current_block_id),odors.valve(trial_info.odor_identity(current_trial,current_block_id),current_block_id)));
                 current_trial_lickingData=[];
                 past_trials=[past_trials; current_trial current_block_id];
@@ -246,7 +246,7 @@ while(running_state > 0)
                 if(lick_status == 0)
                     lick_events_raw{lick_trial,current_block_id}(lick_id,2)=lick_time_raw;
                     lick_events{lick_trial,current_block_id}(lick_id,2)=lick_time;
-                    dualfprintf(treatlogfile,'Mouse licked - T: %d\n',lick_time);
+                    dualfprintf(treatlogfile,'Mouse licked - T: %d\r\n',lick_time);
                 else
                     lick_events_raw{lick_trial,current_block_id}(lick_id,1)=lick_time_raw;
                     lick_events{lick_trial,current_block_id}(lick_id,1)=lick_time;
@@ -265,19 +265,19 @@ while(running_state > 0)
                     us_events_raw{us_trial,current_block_id}(1,1:2)=[us_time_raw us_outcome_code];
                     us_events{us_trial,current_block_id}(1,1:2)=[us_time us_outcome_code];
                 end
-                dualfprintf(treatlogfile,'Reward delivered - T: %d\n',us_time);
+                dualfprintf(treatlogfile,'Reward delivered - T: %d\r\n',us_time);
             elseif(strcmp(split_last_line{2},'ITI'))
                 iti_trial=str2num(split_last_line{4});
                 iti_duration=str2num(split_last_line{5});
                 iti_time_raw=str2num(split_last_line{1});
                 iti_raw{iti_trial,current_block_id}(1,1:2)=[iti_time_raw iti_duration];
                 iti{iti_trial,current_block_id}(1,1:2)=[iti_duration];
-                dualfprintf(treatlogfile,'ITI duration: %d - T: %d\n',iti_duration,iti_time_raw);
+                dualfprintf(treatlogfile,'ITI duration: %d - T: %d\r\n',iti_duration,iti_time_raw);
             else
-                dualfprintf(treatlogfile,'>> Unexpected syntax: %s\n',last_line);
+                dualfprintf(treatlogfile,'>> Unexpected syntax: %s\r\n',last_line);
             end
         else
-            dualfprintf(treatlogfile,sprintf('%s\n',last_line));
+            dualfprintf(treatlogfile,sprintf('%s\r\n',last_line));
             drawnow limitrate
         end
     elseif((toc(tStart) - last_line_time > 1) && (~strcmp(s.DataTerminalReady,'on')))

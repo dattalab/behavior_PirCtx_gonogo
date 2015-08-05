@@ -28,7 +28,7 @@ for i=1:nb_datafiles
     load(fullfile(list_datafiles{i,2},list_datafiles{i,1}),'odors','trial_info');
     real_b=0;
     for b=1:size(trial_info.odor_identity,2)
-        if(nansum(trial_info.odor_identity(:,b) == 0) == 0)
+        if(sum(trial_info.odor_identity(:,b) == 0) == 0)
             real_b=real_b+1;
             all_odor_identity=horzcat(all_odor_identity,trial_info.odor_identity(:,b));
             all_odors{real_b,i}=odors;

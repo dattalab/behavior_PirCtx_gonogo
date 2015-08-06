@@ -47,8 +47,8 @@ void writeOut(char line[]){
 
 // This function randomizes the elements of an int array
 void randomizeArray(int *parray, int nb_elements){
-  // initialize random number generator seed
-  randomSeed(analogRead(randomInPin));
+//  // initialize random number generator seed
+//  randomSeed(analogRead(randomInPin));
   
   for (int i= 0; i< nb_elements; i++) {
     int pos = random(nb_elements-1); 
@@ -90,8 +90,8 @@ void checkPauseResume(){
 
 // This function returns randomized ITI with an exponentional distribution (max ITI as defined)
 void randITI(int *pRandomizedITI, int nb_trials, float lambda, float mean, int max_ITI){
-  // initialize random number generator seed
-  randomSeed(analogRead(randomInPin));
+//  // initialize random number generator seed
+//  randomSeed(analogRead(randomInPin));
   
   for(int t=0; t<nb_trials; t++){
     pRandomizedITI[t]=round((mean+(log((random(0,10000)/10000.0)/lambda))*10/(-lambda))*1000.0);

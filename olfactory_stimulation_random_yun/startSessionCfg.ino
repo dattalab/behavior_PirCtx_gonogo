@@ -51,9 +51,12 @@ void startSessionCfg(String id_config, String id_step) {
   for (int block_id = 1; block_id < (nb_blocks + 1); block_id++) {
     int order[nb_trials_per_block];
     int i = 0;
+    
+    // NO RANDO
 //    for (int t = 0; t < nb_trials_per_block; t++) {
 //      order[t] = t % nb_stimuli;
 //    }
+
      for (int o = 0; o < nb_stimuli; o++) {
       for (int t = 0; t < nb_trials_per_odor[o]; t++) {
         order[i] = o;
@@ -61,10 +64,12 @@ void startSessionCfg(String id_config, String id_step) {
       }
     }
     randomizeArray(order, nb_trials_per_block);
-    for (int t = 0; t < nb_trials_per_block; t++) {
-      order[i] = getIntBridge(fstringF(F("rs/%i"), t));
-      i++;
-     }
+    
+    // PYTHON RANDO
+//    for (int t = 0; t < nb_trials_per_block; t++) {
+//      order[i] = getIntBridge(fstringF(F("rs/%i"), t));
+//      i++;
+//     }
 
     odor_stimulation(settings[0], block_id, nb_trials_per_block, order, duration_scheme[0], duration_scheme[1], nb_stimuli, valves, odor_name, default_flows, carrier_flows, odor_flows);
     checkPauseResume();

@@ -35,6 +35,8 @@ void setup(){ // initialization
   // start Serial communication with computer
   writeOut((String) millis() + F(",CONOK,1"));
 
+  // initialize random number generator seed
+  randomSeed(analogRead(randomInPin));
 }
 
 String last_command="";

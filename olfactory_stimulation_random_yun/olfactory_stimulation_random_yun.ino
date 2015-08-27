@@ -4,7 +4,7 @@
 // Pin assignments
 int trigger = 7;
 int TTL = 6;
-int randomInPin = 8;
+int randomInPin = A11;
 
 // TTL parameters
 int pulse_length = 100;
@@ -38,6 +38,9 @@ void setup() {
   pinMode(TTL, OUTPUT);
   digitalWrite(TTL, LOW);
   pinMode(randomInPin, INPUT);
+  
+  // initialize random number generator seed
+  randomSeed(analogRead(randomInPin));
 }
 
 String last_command = "";

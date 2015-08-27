@@ -6,7 +6,7 @@ const byte icspOutPin = 8; // ICSP Communication Pin
 const byte lickInPin = 3; // Capacitor
 const byte solenoidOutPin = 4;
 const byte punishmentOutPin = 5; // Airpuff
-int randomInPin = A0; // Analog input for random seed generation
+int randomInPin = A11; // Analog input for random seed generation
 
 // --
 

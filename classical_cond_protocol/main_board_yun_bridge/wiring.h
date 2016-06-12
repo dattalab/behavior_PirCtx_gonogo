@@ -4,21 +4,21 @@ const byte LED1OutPin = 6; // Green LED
 const byte LED2OutPin = 7; // Red LED
 const byte icspOutPin = 8; // ICSP Communication Pin
 const byte lickInPin = 3; // Capacitor
-<<<<<<< Updated upstream
+//<<<<<<< Updated upstream
 const byte solenoidOutPin = 4;
 const byte punishmentOutPin = 5; // Airpuff
 int randomInPin = A11; // Analog input for random seed generation
-=======
+//=======
 //<<<<<<< HEAD
-const byte solenoidOutPin = 5;
-const byte punishmentOutPin = 12; // Airpuff
-int randomInPin = A0; // Analog input for random seed generation
+//const byte solenoidOutPin = 5;
+//const byte punishmentOutPin = 12; // Airpuff
+//int randomInPin = A0; // Analog input for random seed generation
 //=======
 //const byte solenoidOutPin = 4;
 //const byte punishmentOutPin = 5; // Airpuff
 //int randomInPin = A11; // Analog input for random seed generation
 //>>>>>>> origin/master
->>>>>>> Stashed changes
+//>>>>>>> Stashed changes
 
 // --
 

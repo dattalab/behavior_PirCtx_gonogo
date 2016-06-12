@@ -4,7 +4,7 @@ function varargout = gui_getlines(varargin)
 %      singleton*.
 %
 %      H = GUI_GETLINES returns the handle to a new GUI_GETLINES or the handle to
-%      the existing singleton*.
+%      the existing s20150722_setBingleton*.
 %
 %      GUI_GETLINES('CALLBACK',hObject,eventData,handles,...) calls the local
 %      function named CALLBACK in GUI_GETLINES.M with the given input arguments.
@@ -210,7 +210,7 @@ while(running_state > 0)
                 end
                 current_odor_table(odor_id,:)={odors.name{odor_id,current_block_id},odors.valence(odor_id,current_block_id),odors.valve(odor_id,current_block_id)};
                 set(handles.currentBlockTable,'Data',current_odor_table);
-                drawnow limitrate
+                    drawnow limitrate
             elseif(progression.init_duration(current_block_id) == 0 || progression.init_assessment_window(current_block_id) == 0 || progression.init_odors(current_block_id) == 0)
                 logmode_only=1;
                 dualfprintf(treatlogfile,'>> Could not acquire all the parameters before experiment starts. Starts in log-mode only.\r\n');

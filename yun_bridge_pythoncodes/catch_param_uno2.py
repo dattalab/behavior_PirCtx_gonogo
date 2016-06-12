@@ -10,7 +10,7 @@ from bridgeclient import BridgeClient as bridgeclient
 
 value = bridgeclient()
 value.put('config_acquired','1')
-tree = ET.parse(urllib.urlopen('http://10.11.176.28:8258/' + str(sys.argv[1]) + '.xml'))
+tree = ET.parse(urllib.urlopen('http://10.11.176.110:8258/' + str(sys.argv[1]) + '.xml'))
 odors_tree=tree.findall('./wheel-set/wheel')
 o=0
 odors=[[] for _ in range(0,len(odors_tree))]

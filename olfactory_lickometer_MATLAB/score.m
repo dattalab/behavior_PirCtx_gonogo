@@ -1,11 +1,11 @@
 nb_blocks=length(block_param.nb_trials);
-%nb_blocks=3;
+%nb_blocks=4;
 nb_trials_per_block=block_param.nb_trials(1);
 %nb_trials_per_block=19;
 nb_odors=size(odors.valence,1);
 
 scorer=NaN(nb_trials_per_block,nb_blocks);
-nb_licks=NaN(nb_trials_per_block,nb_blocks);
+nb_licks=NaN(nb_trials_per_block,nb_blocks);                                                   
 
 for b=1:nb_blocks
     for t=1:nb_trials_per_block
@@ -16,7 +16,7 @@ for b=1:nb_blocks
                 else
                     scorer(t,b)=2;
                 end
-                nb_licks(t,b)=length(find((lick_events{t,b}(:,1) < 2000)));
+                nb_licks(t,b)=length(find((lick_events{t,b}(:,1) < 2000))); 
             else
                 scorer(t,b)=2;
                 nb_licks(t,b)=0;
